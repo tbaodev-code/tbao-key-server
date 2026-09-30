@@ -1528,6 +1528,175 @@ tbody tr:last-child td {
   to { transform: translateX(0); opacity: 1; }
 }
 
+/* ================== PYTHON PROTECTOR COMPONENT ================== */
+.protect-card {
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.12), var(--shadow-card);
+}
+
+.header-dot.amber {
+  background: var(--amber);
+  box-shadow: 0 0 10px var(--amber);
+}
+
+.btn-protect-nav {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  font-family: var(--font-gaming);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-protect-nav:hover {
+  background: rgba(245, 158, 11, 0.28);
+  border-color: #fbbf24;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+  color: #ffffff;
+}
+
+.py-dropzone {
+  border: 2px dashed rgba(245, 158, 11, 0.4);
+  border-radius: var(--radius-md);
+  background: rgba(14, 17, 26, 0.5);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.py-dropzone:hover, .py-dropzone.dragover {
+  border-color: #fbbf24;
+  background: rgba(245, 158, 11, 0.08);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+  transform: translateY(-2px);
+}
+
+.dropzone-icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.4));
+  animation: dropzone-float 3s infinite ease-in-out;
+}
+
+@keyframes dropzone-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.dropzone-title {
+  font-family: var(--font-gaming);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+}
+
+.dropzone-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* File Info Box */
+.py-file-info-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(20, 24, 36, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-top: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.py-file-info-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.py-file-badge {
+  font-family: var(--font-gaming);
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.py-file-name {
+  font-family: 'Consolas', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.py-file-size {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+/* Build Result Box */
+.build-result-box {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-top: 20px;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.build-result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.build-check-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  border: 2px solid var(--green);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.build-download-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-glow {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.45);
+  animation: btn-glow-pulse 2s infinite ease-in-out;
+}
+
+@keyframes btn-glow-pulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.35); }
+  50% { box-shadow: 0 0 28px rgba(0, 240, 255, 0.7); }
+}
+
 /* ================== MOBILE BOTTOM NAVIGATION BAR ================== */
 .mobile-bottom-nav {
   display: none; /* Chỉ hiện trên mobile < 768px */
