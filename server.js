@@ -64,9 +64,9 @@ app.use(
   })
 );
 
-// 4. Giới hạn Payload Body tối đa 16KB (Chống Body Bomb DoS)
-app.use(express.json({ limit: '16kb' }));
-app.use(express.urlencoded({ extended: false, limit: '16kb' }));
+// 4. Giới hạn Payload Body tối đa 10MB (Hỗ trợ upload và build mã nguồn Python an toàn)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(jsonErrorHandler);
 
 // 5. Cấu hình Session Store an toàn
@@ -143,7 +143,13 @@ app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'))
 app.use((err, req, res, next) => {
   console.error('[UNCAUGHT_SERVER_ERROR]', err);
   if (!res.headersSent) {
-    res.status(500).json({ ok: false, error: 'INTERNAL_SERVER_ERROR' });
+    const status = err.status || err.statusCode || 500;
+    const errorCode = err.type === 'entity.too.large' ? 'PAYLOAD_TOO_LARGE' : (err.code || 'INTERNAL_SERVER_ERROR');
+    res.status(status).json({
+      ok: false,
+      error: errorCode,
+      message: err.message || 'Lỗi xử lý yêu cầu phía máy chủ'
+    });
   }
 });
 
