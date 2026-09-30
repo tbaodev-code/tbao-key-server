@@ -838,6 +838,153 @@ function initBottomNav() {
   });
 }
 
+// ================== PYTHON CODE PROTECTOR COMPONENT ==================
+let selectedPyFile = null;
+let originalPyCode = '';
+let protectedPyCode = '';
+let protectedFileName = '';
+
+function formatBytes(bytes, decimals = 1) {
+  if (!+bytes) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+function handlePyFileSelect(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.py')) {
+    showToast('Vui lòng chỉ tải lên tệp tin Python có đuôi .py!', 'error');
+    return;
+  }
+
+  selectedPyFile = file;
+  const fileNameEl = $('pyFileName');
+  const fileSizeEl = $('pyFileSize');
+  const fileInfoBox = $('pyFileInfoBox');
+  const dropzone = $('pyDropzone');
+  const buildBtn = $('buildProtectedBtn');
+  const resultBox = $('buildResultBox');
+
+  if (fileNameEl) fileNameEl.textContent = file.name;
+  if (fileSizeEl) fileSizeEl.textContent = formatBytes(file.size);
+  if (fileInfoBox) fileInfoBox.hidden = false;
+  if (dropzone) dropzone.style.display = 'none';
+  if (buildBtn) buildBtn.disabled = false;
+  if (resultBox) resultBox.hidden = true;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    originalPyCode = e.target.result;
+    showToast(`Đã nạp ${file.name} (${formatBytes(file.size)})`, 'info');
+  };
+  reader.onerror = () => {
+    showToast('Lỗi khi đọc file Python!', 'error');
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function removePyFile() {
+  selectedPyFile = null;
+  originalPyCode = '';
+  protectedPyCode = '';
+  protectedFileName = '';
+
+  const fileInput = $('pyFileInput');
+  if (fileInput) fileInput.value = '';
+
+  const fileInfoBox = $('pyFileInfoBox');
+  const dropzone = $('pyDropzone');
+  const buildBtn = $('buildProtectedBtn');
+  const resultBox = $('buildResultBox');
+
+  if (fileInfoBox) fileInfoBox.hidden = true;
+  if (dropzone) dropzone.style.display = '';
+  if (buildBtn) buildBtn.disabled = true;
+  if (resultBox) resultBox.hidden = true;
+}
+
+async function buildProtectedCode() {
+  if (!selectedPyFile || !originalPyCode) {
+    showToast('Vui lòng chọn file Python trước!', 'error');
+    return;
+  }
+
+  const buildBtn = $('buildProtectedBtn');
+  if (buildBtn) {
+    buildBtn.disabled = true;
+    buildBtn.innerHTML = '<span>⏳ ĐANG BẢO VỆ CODE...</span>';
+  }
+
+  try {
+    const origin = window.location.origin;
+    const res = await api('/api/v1/protect-code', {
+      method: 'POST',
+      body: JSON.stringify({
+        code: originalPyCode,
+        server_url: origin
+      })
+    });
+
+    if (res.ok && res.protected_code) {
+      protectedPyCode = res.protected_code;
+      protectedFileName = selectedPyFile.name.replace(/\.py$/i, '') + '_protected.py';
+
+      const downloadFileName = $('downloadFileName');
+      if (downloadFileName) downloadFileName.textContent = protectedFileName;
+
+      const previewPre = $('protectedCodePre');
+      if (previewPre) previewPre.textContent = protectedPyCode;
+
+      const resultBox = $('buildResultBox');
+      if (resultBox) {
+        resultBox.hidden = false;
+        resultBox.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      showToast(`✓ Đã bảo vệ thành công ${selectedPyFile.name}!`, 'success');
+    } else {
+      showToast(res.error || 'Lỗi khi bảo vệ mã nguồn!', 'error');
+    }
+  } catch (err) {
+    console.error('Build protected code error:', err);
+    showToast('Lỗi kết nối máy chủ!', 'error');
+  } finally {
+    if (buildBtn) {
+      buildBtn.disabled = false;
+      buildBtn.innerHTML = '<span>⚡ BUILD / BẢO VỆ CODE</span>';
+    }
+  }
+}
+
+function downloadProtectedFile() {
+  if (!protectedPyCode) {
+    showToast('Chưa có mã nguồn đã bảo vệ để tải xuống!', 'error');
+    return;
+  }
+
+  const blob = new Blob([protectedPyCode], { type: 'text/x-python;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = protectedFileName || 'protected_script.py';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`Đã tải xuống: ${a.download}`, 'success');
+}
+
+function toggleCodePreview() {
+  const previewBox = $('codePreviewBox');
+  if (previewBox) {
+    previewBox.hidden = !previewBox.hidden;
+  }
+}
+
 // GẮN TOÀN BỘ EVENT LISTENERS AN TOÀN TRÊN DOMCONTENTLOADED
 document.addEventListener('DOMContentLoaded', () => {
   // 1. Nút đăng nhập
@@ -898,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const musicBtn = $('musicBtn');
   if (musicBtn) musicBtn.addEventListener('click', toggleMusic);
 
-  // 11. Các nút mở/đóng Tài liệu API
+  // 11. Các nút mở/đóng Tài liệu API & Điều hướng Protect
   const toggleDocsNavBtn = $('toggleDocsNavBtn');
   if (toggleDocsNavBtn) toggleDocsNavBtn.addEventListener('click', () => toggleDocs());
 
@@ -907,6 +1054,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closeDocsBtn = $('closeDocsBtn');
   if (closeDocsBtn) closeDocsBtn.addEventListener('click', () => toggleDocs(false));
+
+  const navProtectBtn = $('navProtectBtn');
+  if (navProtectBtn) {
+    navProtectBtn.addEventListener('click', () => {
+      const sec = $('protectSection');
+      if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
 
   // Copy Base URL & cURL trong Docs
   const copyBaseUrlBtn = $('copyBaseUrlBtn');
@@ -940,7 +1095,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyCodeBtn = $('copyCodeBtn');
   if (copyCodeBtn) copyCodeBtn.addEventListener('click', copyActiveSdkCode);
 
-  // 15. Event Delegation cho các nút trong bảng danh sách key (Desktop Table)
+  // 15. Python Code Protector Event Handlers
+  const pyDropzone = $('pyDropzone');
+  const pyFileInput = $('pyFileInput');
+  const browsePyFileBtn = $('browsePyFileBtn');
+  const removePyFileBtn = $('removePyFileBtn');
+  const buildProtectedBtn = $('buildProtectedBtn');
+  const downloadProtectedBtn = $('downloadProtectedBtn');
+  const togglePreviewBtn = $('togglePreviewBtn');
+  const copyProtectedCodeBtn = $('copyProtectedCodeBtn');
+
+  if (browsePyFileBtn && pyFileInput) {
+    browsePyFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pyFileInput.click();
+    });
+  }
+
+  if (pyDropzone && pyFileInput) {
+    pyDropzone.addEventListener('click', () => pyFileInput.click());
+
+    pyDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      pyDropzone.classList.add('dragover');
+    });
+
+    pyDropzone.addEventListener('dragleave', () => {
+      pyDropzone.classList.remove('dragover');
+    });
+
+    pyDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      pyDropzone.classList.remove('dragover');
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handlePyFileSelect(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  if (pyFileInput) {
+    pyFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handlePyFileSelect(e.target.files[0]);
+      }
+    });
+  }
+
+  if (removePyFileBtn) removePyFileBtn.addEventListener('click', removePyFile);
+  if (buildProtectedBtn) buildProtectedBtn.addEventListener('click', buildProtectedCode);
+  if (downloadProtectedBtn) downloadProtectedBtn.addEventListener('click', downloadProtectedFile);
+  if (togglePreviewBtn) togglePreviewBtn.addEventListener('click', toggleCodePreview);
+  if (copyProtectedCodeBtn) {
+    copyProtectedCodeBtn.addEventListener('click', () => {
+      if (protectedPyCode) copyToClipboard(protectedPyCode);
+    });
+  }
+
+  // 16. Event Delegation cho các nút trong bảng danh sách key (Desktop Table)
   const keysBody = $('keysBody');
   if (keysBody) {
     keysBody.addEventListener('click', (e) => {
@@ -949,7 +1160,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 16. Event Delegation cho danh sách key Mobile Cards
+  // 17. Event Delegation cho danh sách key Mobile Cards
   const keysCardsMobile = $('keysCardsMobile');
   if (keysCardsMobile) {
     keysCardsMobile.addEventListener('click', (e) => {
@@ -958,7 +1169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 17. Event Delegation cho danh sách thiết bị kết nối (Desktop Table)
+  // 18. Event Delegation cho danh sách thiết bị kết nối (Desktop Table)
   const devicesBody = $('devicesBody');
   if (devicesBody) {
     devicesBody.addEventListener('click', (e) => {
@@ -967,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 18. Event Delegation cho danh sách thiết bị Mobile Cards
+  // 19. Event Delegation cho danh sách thiết bị Mobile Cards
   const devicesCardsMobile = $('devicesCardsMobile');
   if (devicesCardsMobile) {
     devicesCardsMobile.addEventListener('click', (e) => {
@@ -976,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 19. Khởi tạo Mobile Bottom Navigation
+  // 20. Khởi tạo Mobile Bottom Navigation
   initBottomNav();
 
   // Khởi động phiên làm việc & kiểm tra trạng thái
