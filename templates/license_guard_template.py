@@ -31,11 +31,22 @@ DIM = "\033[90m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
-# CẤU HÌNH MÁY CHỦ BẢN QUYỀN (TỰ ĐỘNG CẬP NHẬT TỪ TỦ ĐIỀU KHIỂN)
+# CẤU HÌNH MÁY CHỦ BẢN QUYỀN (HỖ TRỢ TỰ ĐỘNG CHUYỂN DOMAIN/MIGRATION)
 __LICENSE_SERVER__ = "{{SERVER_URL}}"
 __LICENSE_CACHE_FILE__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "license.key")
+__SERVER_CACHE_FILE__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".server_endpoint.cache")
 
-def __get_machine_id():
+def __get_active_server():
+    """Lấy link server đang hoạt động (ưu tiên link mới nếu server thông báo đổi domain)"""
+    if os.path.exists(__SERVER_CACHE_FILE__):
+        try:
+            with open(__SERVER_CACHE_FILE__, "r", encoding="utf-8") as f:
+                cached = f.read().strip()
+                if cached.startswith("http://") or cached.startswith("https://"):
+                    return cached
+        except Exception:
+            pass
+    return __LICENSE_SERVER__
     """Trích xuất mã máy phần cứng bất biến (Motherboard UUID + CPU ID + BaseBoard Serial)"""
     uuid, cpu_id, board_serial = "", "", ""
     try:
@@ -88,7 +99,8 @@ def __render_banner(machine_id, status_text=None, is_valid=False):
 
 def __verify_key_online(key, machine_id):
     """Gửi yêu cầu xác thực tới License Server (Có Anti-Replay Nonce & Timestamp)"""
-    url = f"{__LICENSE_SERVER__.rstrip('/')}/api/v1/check-key"
+    active_server = __get_active_server().rstrip('/')
+    url = f"{active_server}/api/v1/check-key"
     nonce = hashlib.sha256(f"{time.time()}:{key}:{machine_id}".encode()).hexdigest()[:16]
     timestamp = int(time.time() * 1000)
 
@@ -112,6 +124,13 @@ def __verify_key_online(key, machine_id):
     try:
         with urllib.request.urlopen(req, timeout=12) as response:
             res_data = json.loads(response.read().decode("utf-8"))
+            # Tự động lưu URL mới nếu Server gửi thông báo chuyển domain
+            if res_data.get("server_redirect"):
+                try:
+                    with open(__SERVER_CACHE_FILE__, "w", encoding="utf-8") as f:
+                        f.write(str(res_data["server_redirect"]).strip())
+                except Exception:
+                    pass
             return res_data.get("valid") is True, res_data
     except urllib.error.HTTPError as e:
         try:
