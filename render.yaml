@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tbao-team-license
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /status
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
