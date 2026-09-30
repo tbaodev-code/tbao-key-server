@@ -919,7 +919,9 @@ async function buildProtectedCode() {
   }
 
   try {
-    const origin = window.location.origin;
+    const customUrlInput = $('customServerUrlInput');
+    const customUrl = customUrlInput ? customUrlInput.value.trim() : '';
+    const origin = customUrl || window.location.origin;
     const res = await api('/api/v1/protect-code', {
       method: 'POST',
       body: JSON.stringify({
@@ -1096,6 +1098,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (copyCodeBtn) copyCodeBtn.addEventListener('click', copyActiveSdkCode);
 
   // 15. Python Code Protector Event Handlers
+  const customServerUrlInput = $('customServerUrlInput');
+  if (customServerUrlInput && !customServerUrlInput.value) {
+    customServerUrlInput.value = window.location.origin;
+  }
+
   const pyDropzone = $('pyDropzone');
   const pyFileInput = $('pyFileInput');
   const browsePyFileBtn = $('browsePyFileBtn');
