@@ -274,6 +274,41 @@ const handleRegisterDevice = async (req, res) => {
 router.post('/register-hwid', checkJailedIp, handleRegisterDevice);
 router.post('/register-device', checkJailedIp, handleRegisterDevice);
 
+const { getGuardTemplate, protectPythonCode } = require('../security/python_protector');
+
+// Endpoint phân phối Template bảo vệ Python cho Client/Frontend
+router.get('/protector-template', (req, res) => {
+  try {
+    const origin = req.protocol + '://' + req.get('host');
+    const template = getGuardTemplate(origin);
+    res.json({ ok: true, template, server_url: origin });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// Endpoint chèn mã bảo vệ vào file Python gốc
+router.post('/protect-code', (req, res) => {
+  try {
+    const { code, server_url } = req.body || {};
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ ok: false, error: 'MISSING_PYTHON_CODE' });
+    }
+    const origin = server_url || (req.protocol + '://' + req.get('host'));
+    const protectedCode = protectPythonCode(code, origin);
+    res.json({
+      ok: true,
+      message: 'Code protected successfully',
+      server_url: origin,
+      original_length: code.length,
+      protected_length: protectedCode.length,
+      protected_code: protectedCode
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // Endpoint phân phối Public Key để Client xác minh chữ ký (Không chứa Secret)
 router.get('/public-key', (req, res) => {
   res.json({
