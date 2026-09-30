@@ -31,6 +31,9 @@
     </div>
 
     <div class="header-right">
+      <button id="navProtectBtn" type="button" class="btn btn-protect-nav">
+        <span>🛡️ BẢO VỆ FILE .PY</span>
+      </button>
       <button id="toggleDocsNavBtn" type="button" class="btn btn-docs-nav">
         <span>📖 TÀI LIỆU API & SDK</span>
       </button>
@@ -193,6 +196,85 @@
             <button id="copyKeyBtn" type="button" class="btn-copy-tech">📋 COPY KEY</button>
           </div>
           <pre id="createResult"></pre>
+        </div>
+      </section>
+
+      <!-- PYTHON CODE PROTECTOR // BẢO VỆ FILE PYTHON -->
+      <section id="protectSection" class="card cyber-card protect-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="header-dot amber"></span>
+            <h2>GẮN BẢN QUYỀN VÀO FILE PYTHON // CODE PROTECTOR</h2>
+          </div>
+          <span class="tech-badge">AUTO_LICENSE_INJECTOR</span>
+        </div>
+
+        <p class="cyber-muted" style="margin-bottom: 16px; font-size: 13px;">
+          Tải lên file Python (<code class="code-pill">.py</code>) của bạn. Hệ thống sẽ tự động chèn khối kiểm tra bản quyền vào đầu file mà <b>giữ nguyên 100% logic mã nguồn gốc</b>. Khi người dùng chạy file, tool sẽ tự động hiện Banner TBAO TEAM, lấy Mã máy (Machine ID), yêu cầu nhập Key và xác thực với Server.
+        </p>
+
+        <!-- Dropzone Container -->
+        <div id="pyDropzone" class="py-dropzone">
+          <input type="file" id="pyFileInput" accept=".py" style="display: none;">
+          <div class="dropzone-content">
+            <div class="dropzone-icon">🛡️</div>
+            <p class="dropzone-title">KÉO THẢ FILE .PY VÀO ĐÂY</p>
+            <p class="dropzone-sub">hoặc nhấn để duyệt file từ máy tính</p>
+            <button type="button" id="browsePyFileBtn" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
+              📁 Chọn File Python (.py)
+            </button>
+          </div>
+        </div>
+
+        <!-- File Info Box (Hiển thị khi đã chọn file) -->
+        <div id="pyFileInfoBox" class="py-file-info-box" hidden>
+          <div class="py-file-info-left">
+            <span class="py-file-badge">🐍 PYTHON</span>
+            <div>
+              <div class="py-file-name" id="pyFileName">example.py</div>
+              <small class="py-file-size" id="pyFileSize">0.0 KB</small>
+            </div>
+          </div>
+          <div class="py-file-info-right">
+            <button type="button" id="removePyFileBtn" class="btn-action-mini danger" title="Hủy chọn">✕ Hủy</button>
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div class="protect-actions-row" style="margin-top: 16px;">
+          <button type="button" id="buildProtectedBtn" class="btn btn-cyber-primary" disabled>
+            <span>⚡ BUILD / BẢO VỆ CODE</span>
+          </button>
+        </div>
+
+        <!-- Build Result Box (Hiển thị khi build thành công) -->
+        <div id="buildResultBox" class="build-result-box" hidden>
+          <div class="build-result-header">
+            <span class="build-check-icon">✓</span>
+            <div>
+              <b style="color: #34d399; font-size: 14px;">BẢO VỆ FILE THÀNH CÔNG!</b>
+              <div class="cyber-muted" style="font-size: 12px; margin-top: 2px;">
+                ✓ Python file protected successfully &nbsp;|&nbsp; ✓ License check inserted &nbsp;|&nbsp; ✓ Original code preserved
+              </div>
+            </div>
+          </div>
+
+          <div class="build-download-row">
+            <button type="button" id="downloadProtectedBtn" class="btn btn-cyber-primary btn-glow">
+              <span>📥 TẢI FILE ĐÃ BẢO VỆ (<span id="downloadFileName">example_protected.py</span>)</span>
+            </button>
+            <button type="button" id="togglePreviewBtn" class="btn btn-secondary">
+              👁️ Xem Trước Code
+            </button>
+          </div>
+
+          <div id="codePreviewBox" class="terminal-box" hidden style="margin-top: 14px;">
+            <div class="terminal-bar">
+              <span>● CODE ĐÃ GẮN BẢO VỆ (PREVIEW)</span>
+              <button type="button" id="copyProtectedCodeBtn" class="btn-copy-tech">📋 COPY CODE</button>
+            </div>
+            <pre id="protectedCodePre" style="max-height: 280px; overflow-y: auto;"></pre>
+          </div>
         </div>
       </section>
 
@@ -807,6 +889,10 @@ if __name__ == "__main__":
     <button type="button" class="bottom-nav-item" data-target="forgeSection">
       <span class="nav-icon">⚡</span>
       <span class="nav-text">Cấp Key</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-target="protectSection">
+      <span class="nav-icon">🛡️</span>
+      <span class="nav-text">Bảo Vệ</span>
     </button>
     <button type="button" class="bottom-nav-item" data-target="keysSection">
       <span class="nav-icon">🔑</span>
