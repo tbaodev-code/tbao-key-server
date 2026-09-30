@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.log
+.server_signing_key.json
+license.key
+__pycache__/
