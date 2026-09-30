@@ -161,8 +161,9 @@ def __enforce_license():
             exp = info.get("expires_at")
             exp_str = f"Hết hạn: {exp}" if exp else "Bản quyền: Vĩnh viễn ∞"
             print(f"  {GREEN}[✓] Kích hoạt bản quyền thành công! ({exp_str}){RESET}")
-            print(f"  {DIM}[*] Khởi chạy chương trình chính...{RESET}\n")
-            time.sleep(0.5)
+            print(f"  {DIM}[*] Đang khởi chạy ứng dụng...{RESET}\n")
+            time.sleep(1.0)
+            os.system("cls" if os.name == "nt" else "clear")
             return
 
     # 2. Nếu chưa kích hoạt hoặc key cũ hết hạn -> Hỏi người dùng nhập key
@@ -194,7 +195,8 @@ def __enforce_license():
             exp_str = f"Hết hạn: {exp}" if exp else "Bản quyền: Vĩnh viễn ∞"
             print(f"  {GREEN}[✓] Kích hoạt bản quyền thành công! ({exp_str}){RESET}")
             print(f"  {DIM}[*] Đang khởi chạy ứng dụng...{RESET}\n")
-            time.sleep(0.6)
+            time.sleep(1.2)
+            os.system("cls" if os.name == "nt" else "clear")
             return
         else:
             reason = info.get("reason", "UNKNOWN_ERROR")
