@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TBAO TEAM — Cybernetic License Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Cyber Background Ambient Lights & Grid -->
+  <div class="cyber-bg-glow"></div>
+  <div class="cyber-grid"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">
+        <span class="logo-icon">⚡</span>
+      </div>
+      <div>
+        <div class="brand-title-row">
+          <h1>TBAO TEAM</h1>
+          <span class="cyber-tag">PRO GAMING EDITION</span>
+        </div>
+        <small class="brand-subtitle">CYBERNETIC LICENSE COMMAND CENTER // V2.0</small>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button id="toggleDocsNavBtn" type="button" class="btn btn-docs-nav">
+        <span>📖 TÀI LIỆU API & SDK</span>
+      </button>
+      <div id="liveClock" class="hud-clock">00:00:00</div>
+      <div id="status" class="hud-status">
+        <span class="status-pulse"></span>
+        <span class="status-text">INITIALIZING...</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- LOGIN CARD (PORTAL TERMINAL) -->
+    <section id="loginCard" class="card cyber-login-card">
+      <div class="corner-bracket tl"></div>
+      <div class="corner-bracket tr"></div>
+      <div class="corner-bracket bl"></div>
+      <div class="corner-bracket br"></div>
+
+      <div class="login-header">
+        <div class="login-icon-box">🔐</div>
+        <h2>AUTHENTICATION PORTAL</h2>
+        <p class="cyber-muted">Nhập thông tin nhận dạng quản trị viên để mở khóa hệ thống</p>
+      </div>
+
+      <div class="login-form">
+        <div class="input-group">
+          <label for="username">USERNAME</label>
+          <div class="input-field-wrap">
+            <span class="field-icon">👤</span>
+            <input id="username" type="text" placeholder="Nhập tên đăng nhập (mặc định: admin)..." autocomplete="username">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="password">SECURITY ACCESS CODE</label>
+          <div class="input-field-wrap">
+            <span class="field-icon">🔑</span>
+            <input id="password" type="password" placeholder="Nhập mật khẩu (mặc định: CHANGE_ME)..." autocomplete="current-password">
+          </div>
+        </div>
+
+        <button id="loginBtn" type="button" class="btn btn-primary btn-block glow-hover">
+          <span>XÁC THỰC TRUY CẬP</span>
+          <span class="btn-arrow">➔</span>
+        </button>
+
+        <p id="loginMsg" class="login-feedback"></p>
+
+        <div style="text-align: center; margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px;">
+          <button id="openDocsPublicBtn" type="button" class="btn-text-link">
+            📖 Xem Tài Liệu Tích Hợp API Client ➔
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD PANEL -->
+    <section id="panel" hidden>
+
+      <!-- STATS HUD -->
+      <div id="statsSection" class="stats-matrix">
+        <div class="card stat-card stat-cyan">
+          <div class="stat-top">
+            <span class="stat-label">TOTAL LICENSES</span>
+            <span class="stat-icon">🔑</span>
+          </div>
+          <b id="statKeys" class="stat-num">0</b>
+          <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+          <span class="stat-sub">Tổng số khóa trên toàn hệ thống</span>
+        </div>
+
+        <div class="card stat-card stat-green">
+          <div class="stat-top">
+            <span class="stat-label">ACTIVE COMBAT</span>
+            <span class="stat-icon">🛡️</span>
+          </div>
+          <b id="statActive" class="stat-num">0</b>
+          <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+          <span class="stat-sub">Bản quyền đang hoạt động hợp lệ</span>
+        </div>
+
+        <div class="card stat-card stat-red">
+          <div class="stat-top">
+            <span class="stat-label">FLAGGED / BANNED</span>
+            <span class="stat-icon">⚠️</span>
+          </div>
+          <b id="statShared" class="stat-num">0</b>
+          <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+          <span class="stat-sub">Đã khóa hoặc nghi vấn vi phạm</span>
+        </div>
+
+        <div class="card stat-card stat-purple">
+          <div class="stat-top">
+            <span class="stat-label">AUTHORIZED RIGS</span>
+            <span class="stat-icon">💻</span>
+          </div>
+          <b id="statDevices" class="stat-num">0</b>
+          <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+          <span class="stat-sub">Thiết bị phần cứng đã nhận dạng</span>
+        </div>
+      </div>
+
+      <!-- KEY FORGE (CREATE NEW KEY) -->
+      <section id="forgeSection" class="card cyber-card forge-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="header-dot cyan"></span>
+            <h2>FORGE LICENSE // TẠO KEY MỚI</h2>
+          </div>
+          <span class="tech-badge">SECURE_256</span>
+        </div>
+
+        <div class="formgrid">
+          <div class="form-control-wrap span-2">
+            <label for="hwidInput">PRIMARY HWID <span class="req">*</span></label>
+            <input id="hwidInput" placeholder="Ví dụ: HWID-DESKTOP-9X82FA..." autocomplete="off">
+          </div>
+
+          <div class="form-control-wrap">
+            <label for="deviceLimit">GIỚI HẠN THIẾT BỊ</label>
+            <input id="deviceLimit" type="number" min="1" max="1000" value="1" placeholder="Số máy cho phép">
+          </div>
+
+          <div class="form-control-wrap">
+            <label for="duration">THỜI HẠN (NGÀY)</label>
+            <input id="duration" type="number" min="1" max="3650" value="30" placeholder="Số ngày">
+          </div>
+        </div>
+
+        <!-- Quick duration selector pills -->
+        <div class="preset-row">
+          <span class="preset-label">CHỌN NHANH:</span>
+          <button type="button" class="preset-btn" data-days="1">1 Ngày</button>
+          <button type="button" class="preset-btn" data-days="7">7 Ngày</button>
+          <button type="button" class="preset-btn active" data-days="30">30 Ngày</button>
+          <button type="button" class="preset-btn" data-days="90">90 Ngày</button>
+          <button type="button" class="preset-btn" data-days="365">1 Năm</button>
+          <label class="checkbox-pill">
+            <input id="forever" type="checkbox">
+            <span>Vĩnh viễn ∞</span>
+          </label>
+        </div>
+
+        <div class="form-control-wrap note-wrap">
+          <label for="note">GHI CHÚ / KHÁCH HÀNG (TÙY CHỌN)</label>
+          <input id="note" placeholder="Tên khách hàng, liên hệ Zalo/Discord, v.v...">
+        </div>
+
+        <div class="forge-action-row">
+          <button id="createKeyBtn" type="button" class="btn btn-cyber-primary">
+            <span>⚡ SINH KEY BẢN QUYỀN</span>
+          </button>
+        </div>
+
+        <!-- Terminal Output -->
+        <div id="resultBox" class="terminal-box" hidden>
+          <div class="terminal-bar">
+            <span>● LICENSE_GENERATION_TERMINAL</span>
+            <button id="copyKeyBtn" type="button" class="btn-copy-tech">📋 COPY KEY</button>
+          </div>
+          <pre id="createResult"></pre>
+        </div>
+      </section>
+
+      <!-- KEY LIST -->
+      <section id="keysSection" class="card cyber-card">
+        <div class="row table-header-row">
+          <div class="card-header-left">
+            <span class="header-dot purple"></span>
+            <h2>DANH SÁCH BẢN QUYỀN</h2>
+          </div>
+          <div class="table-actions">
+            <!-- Ô TÌM KIẾM HOÀN CHỈNH REALTIME -->
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input id="keySearchInput" type="text" placeholder="Tìm kiếm Key, HWID, Ghi chú, Trạng thái..." autocomplete="off">
+              <button id="clearSearchBtn" type="button" class="btn-clear-search" title="Xóa tìm kiếm" hidden>✕</button>
+            </div>
+            <button id="refreshBtn" type="button" class="btn btn-secondary">↻ Làm mới</button>
+            <button id="logoutBtn" type="button" class="btn btn-danger-ghost">Đăng xuất</button>
+          </div>
+        </div>
+
+        <!-- Trạng thái Empty State khi tìm kiếm không ra kết quả -->
+        <div id="keySearchEmpty" class="cyber-search-empty" hidden>
+          <div class="empty-icon-radar">🔍</div>
+          <h3>KHÔNG TÌM THẤY KẾT QUẢ PHÙ HỢP</h3>
+          <p id="emptySearchQueryText" class="cyber-muted">Không có mã bản quyền nào khớp với từ khóa của bạn.</p>
+          <button id="resetSearchBtn" type="button" class="btn btn-cyber-primary btn-sm">
+            <span>✕ XÓA BỘ LỌC TÌM KIẾM</span>
+          </button>
+        </div>
+
+        <!-- BẢNG DESKTOP (Hiển thị màn hình >= 768px) -->
+        <div class="tablewrap cyber-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>MÃ KEY</th>
+                <th>PRIMARY HWID</th>
+                <th>GIỚI HẠN</th>
+                <th>ĐÃ KÍCH HOẠT</th>
+                <th>TRẠNG THÁI</th>
+                <th>HẾT HẠN</th>
+                <th>GHI CHÚ</th>
+                <th>THAO TÁC</th>
+              </tr>
+            </thead>
+            <tbody id="keysBody"></tbody>
+          </table>
+        </div>
+
+        <!-- MOBILE CARDS CONTAINER (Hiển thị riêng trên điện thoại < 768px) -->
+        <div id="keysCardsMobile" class="cyber-mobile-cards-list"></div>
+      </section>
+
+      <!-- HARDWARE RIGS (DEVICES) -->
+      <section id="devicesSection" class="card cyber-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="header-dot green"></span>
+            <h2>THIẾT BỊ ĐÃ KẾT NỐI (AUTHORIZED RIGS)</h2>
+          </div>
+          <span class="tech-badge">LIVE_HARDWARE_MONITOR</span>
+        </div>
+
+        <!-- BẢNG DESKTOP (Hiển thị màn hình >= 768px) -->
+        <div class="tablewrap cyber-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>HARDWARE ID (HWID)</th>
+                <th>CPU HARDWARE</th>
+                <th>HỆ ĐIỀU HÀNH</th>
+                <th>HOẠT ĐỘNG CUỐI</th>
+                <th>THAO TÁC</th>
+              </tr>
+            </thead>
+            <tbody id="devicesBody"></tbody>
+          </table>
+        </div>
+
+        <!-- MOBILE DEVICES CONTAINER (Hiển thị riêng trên điện thoại < 768px) -->
+        <div id="devicesCardsMobile" class="cyber-mobile-cards-list"></div>
+      </section>
+
+    </section>
+
+    <!-- ================== EMBEDDED API DOCS & SDK MODAL/SECTION ================== -->
+    <section id="apiDocsSection" class="card cyber-card docs-card" hidden>
+      <div class="card-header">
+        <div class="card-header-left">
+          <span class="header-dot cyan"></span>
+          <h2>HƯỚNG DẪN SỬ DỤNG API // TÍCH HỢP TOOL & APP</h2>
+        </div>
+        <button id="closeDocsBtn" type="button" class="btn-close-tech">✕ ĐÓNG</button>
+      </div>
+
+      <!-- KHỐI 1: TÓM TẮT NHANH 1 PHÚT (QUICKSTART CHO TOOL KHÁC) -->
+      <div class="docs-section-block">
+        <h3 class="docs-subtitle">⚡ 1. KẾT NỐI NHANH (API QUICKSTART CHO TOOL KHÁC)</h3>
+        <p class="cyber-muted" style="margin-bottom: 14px; font-size: 13px;">
+          Bất kỳ tool hoặc phần mềm nào (C#, C++, Python, AutoIt, Node.js...) chỉ cần gửi HTTP POST request đến endpoint dưới đây để kiểm tra bản quyền. Server trả về JSON trực tiếp, hoàn toàn không phụ thuộc giao diện Web.
+        </p>
+
+        <div class="spec-table-wrap">
+          <table class="spec-table">
+            <tr>
+              <td class="spec-key">Base URL:</td>
+              <td class="spec-val">
+                <span id="docsBaseUrl" class="code-pill">http://localhost:3000</span>
+                <button type="button" class="btn-mini-copy" id="copyBaseUrlBtn" title="Sao chép Base URL">📋 Copy URL</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="spec-key">Endpoint:</td>
+              <td class="spec-val"><code class="code-pill">POST /api/v1/check-key</code> (hoặc <code class="code-pill">POST /api/check</code>)</td>
+            </tr>
+            <tr>
+              <td class="spec-key">Method:</td>
+              <td class="spec-val"><b style="color: #34d399;">POST</b></td>
+            </tr>
+            <tr>
+              <td class="spec-key">Authentication:</td>
+              <td class="spec-val"><span class="badge active" style="font-size:11px;">Không bắt buộc (Công khai cho Tool)</span></td>
+            </tr>
+            <tr>
+              <td class="spec-key">Content-Type:</td>
+              <td class="spec-val"><code class="code-pill">application/json</code></td>
+            </tr>
+            <tr>
+              <td class="spec-key">Request Body:</td>
+              <td class="spec-val">
+                <pre class="inline-json">{
+  "key": "TBAO-XXXX-XXXX-XXXX",
+  "hwid": "MÃ-MÁY-CỦA-TOOL"
+}</pre>
+              </td>
+            </tr>
+            <tr>
+              <td class="spec-key">Ví dụ cURL:</td>
+              <td class="spec-val">
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <code class="code-pill" id="quickCurlText" style="word-break: break-all;">curl -X POST "http://localhost:3000/api/v1/check-key" -H "Content-Type: application/json" -d "{\"key\":\"TBAO-TEST-KEY\",\"hwid\":\"HWID-MY-PC\"}"</code>
+                  <button type="button" class="btn-mini-copy" id="copyQuickCurlBtn" title="Sao chép cURL">📋 Copy cURL</button>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- KHỐI 2: NGƯỜI DÙNG CẦN LÀM GÌ ĐỂ SỬ DỤNG API? -->
+      <div class="docs-section-block">
+        <h3 class="docs-subtitle">📌 2. NGƯỜI DÙNG CẦN LÀM GÌ ĐỂ SỬ DỤNG API?</h3>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">01</span>
+            <b>LẤY MÃ KEY</b>
+            <p>Admin cấp mã key (VD: <code>TBAO-XXXX...</code>) từ mục Cấp Key hoặc Danh Sách Bản Quyền.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">02</span>
+            <b>COPY BASE URL</b>
+            <p>Sử dụng URL máy chủ (<code>http://localhost:3000</code> hoặc domain server thực tế của bạn).</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">03</span>
+            <b>GỬI REQUEST POST</b>
+            <p>Gửi POST request tới endpoint <code>/api/v1/check-key</code> kèm body <code>{"key":"...", "hwid":"..."}</code>.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">04</span>
+            <b>NHẬN PHẢN HỒI JSON</b>
+            <p>Kiểm tra <code>"valid": true</code> để cho phép tool hoạt động. Nếu sai, thông báo mã lỗi từ <code>reason</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KHỐI 3: BẢNG TỔNG HỢP TOÀN BỘ ENDPOINTS -->
+      <div class="docs-section-block">
+        <h3 class="docs-subtitle">📑 3. BẢNG TỔNG HỢP TẤT CẢ ENDPOINTS</h3>
+        <div class="tablewrap cyber-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>METHOD</th>
+                <th>ENDPOINT</th>
+                <th>CHỨC NĂNG</th>
+                <th>XÁC THỰC (AUTH)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid #10b981;">POST</span></td>
+                <td><code class="code-pill">/api/v1/check-key</code></td>
+                <td>Kiểm tra bản quyền, xác thực mã máy, tự động gán máy nếu còn chỗ</td>
+                <td><span class="badge active">Không (Dành cho Tool)</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid #10b981;">POST</span></td>
+                <td><code class="code-pill">/api/v1/register-device</code></td>
+                <td>Đăng ký thông số CPU/OS của máy lên server trước khi cấp key</td>
+                <td><span class="badge active">Không (Dành cho Tool)</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(0,240,255,0.15);color:#00f0ff;border:1px solid #00f0ff;">GET</span></td>
+                <td><code class="code-pill">/api/v1/public-key</code></td>
+                <td>Lấy Ed25519 Public Key để Tool tự xác minh tính toàn vẹn</td>
+                <td><span class="badge active">Không</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(0,240,255,0.15);color:#00f0ff;border:1px solid #00f0ff;">GET</span></td>
+                <td><code class="code-pill">/status</code></td>
+                <td>Kiểm tra trạng thái máy chủ và kết nối CSDL Turso Cloud</td>
+                <td><span class="badge active">Không</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid #10b981;">POST</span></td>
+                <td><code class="code-pill">/admin/login</code></td>
+                <td>Xác thực đăng nhập tài khoản quản trị viên</td>
+                <td><span class="badge banned">Username & Password</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(0,240,255,0.15);color:#00f0ff;border:1px solid #00f0ff;">GET</span></td>
+                <td><code class="code-pill">/admin/keys</code></td>
+                <td>Lấy danh sách toàn bộ các mã key trong hệ thống</td>
+                <td><span class="badge banned">Admin Session Cookie</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid #10b981;">POST</span></td>
+                <td><code class="code-pill">/admin/create-key</code></td>
+                <td>Tạo mới mã bản quyền (HWID, thời hạn, giới hạn máy)</td>
+                <td><span class="badge banned">Admin Session Cookie</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid #10b981;">POST</span></td>
+                <td><code class="code-pill">/admin/toggle-ban</code></td>
+                <td>Khóa hoặc Mở khóa mã bản quyền</td>
+                <td><span class="badge banned">Admin Session Cookie</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid #10b981;">POST</span></td>
+                <td><code class="code-pill">/admin/renew-key</code></td>
+                <td>Gia hạn thêm số ngày sử dụng cho key</td>
+                <td><span class="badge banned">Admin Session Cookie</span></td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(244,63,94,0.15);color:#fb7185;border:1px solid #f43f5e;">POST</span></td>
+                <td><code class="code-pill">/admin/delete-key</code></td>
+                <td>Xóa vĩnh viễn key bản quyền khỏi CSDL</td>
+                <td><span class="badge banned">Admin Session Cookie</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- KHỐI 4: TRÌNH KIỂM THỬ API TRỰC TIẾP (LIVE TESTER) -->
+      <div class="tester-card">
+        <div class="tester-header">
+          <span class="tester-title">⚡ 4. TRÌNH KIỂM THỬ API TRỰC TIẾP (LIVE TESTER)</span>
+          <span class="badge active">POST /api/v1/check-key</span>
+        </div>
+        <div class="tester-grid">
+          <div>
+            <label for="testKeyInput">MÃ KEY CẦN TEST</label>
+            <input id="testKeyInput" placeholder="Nhập Key (VD: TBAO-XXXX-XXXX-XXXX)...">
+          </div>
+          <div>
+            <label for="testHwidInput">HWID THIẾT BỊ</label>
+            <input id="testHwidInput" placeholder="Nhập HWID (VD: HWID-MY-PC)...">
+          </div>
+        </div>
+        <button id="runApiTestBtn" type="button" class="btn btn-cyber-primary" style="margin-top: 12px;">
+          <span>🚀 GỬI REQUEST KIỂM TRA NGAY</span>
+        </button>
+        <div id="testResultBox" class="terminal-box" hidden style="margin-top: 14px;">
+          <div class="terminal-bar">
+            <span>● PHẢN HỒI JSON TỪ SERVER</span>
+            <span id="testHttpStatus" class="badge">STATUS: ---</span>
+          </div>
+          <pre id="testResultJson">// Kết quả sẽ xuất hiện tại đây...</pre>
+        </div>
+      </div>
+
+      <!-- Response Status Table -->
+      <div class="docs-section-block">
+        <h3 class="docs-subtitle">5. BẢNG MÃ PHẢN HỒI (HTTP STATUS CODES)</h3>
+        <div class="tablewrap cyber-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>MÃ HTTP</th>
+                <th>TRẠNG THÁI</th>
+                <th>Ý NGHĨA & HÀNH ĐỘNG</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge active">200 OK</span></td>
+                <td><code style="color:#34d399">valid: true</code></td>
+                <td>Bản quyền hợp lệ! Kèm chữ ký số Ed25519 và HMAC-SHA256 để client xác minh tính toàn vẹn.</td>
+              </tr>
+              <tr>
+                <td><span class="badge banned">400 BAD REQ</span></td>
+                <td><code style="color:#fb7185">REPLAY_ATTACK_DETECTED</code></td>
+                <td>Phát hiện tấn công phát lại gói tin (Nonce đã từng được sử dụng). Yêu cầu bị hủy bỏ.</td>
+              </tr>
+              <tr>
+                <td><span class="badge banned">400 BAD REQ</span></td>
+                <td><code style="color:#fb7185">TIMESTAMP_EXPIRED</code></td>
+                <td>Thời gian của client lệch quá 5 phút so với đồng hồ Server. Kiểm tra lại giờ hệ thống.</td>
+              </tr>
+              <tr>
+                <td><span class="badge banned">403 FORBIDDEN</span></td>
+                <td><code style="color:#fb7185">DEVICE_LIMIT_REACHED</code></td>
+                <td>Máy lạ vượt quá giới hạn thiết bị. Máy chính chủ vẫn dùng bình thường, key không bị ban.</td>
+              </tr>
+              <tr>
+                <td><span class="badge banned">403 FORBIDDEN</span></td>
+                <td><code style="color:#fb7185">IP_TEMPORARILY_BLOCKED</code></td>
+                <td>Địa chỉ IP bị tạm khóa 15 phút do phát hiện hành vi Brute Force dò key trái phép liên tục.</td>
+              </tr>
+              <tr>
+                <td><span class="badge banned">403 FORBIDDEN</span></td>
+                <td><code style="color:#fb7185">KEY_BANNED</code></td>
+                <td>Key đã bị quản trị viên khóa thủ công. Thông báo cho người dùng.</td>
+              </tr>
+              <tr>
+                <td><span class="badge expired">403 FORBIDDEN</span></td>
+                <td><code style="color:#94a3b8">KEY_EXPIRED</code></td>
+                <td>Key đã hết hạn sử dụng. Yêu cầu khách gia hạn.</td>
+              </tr>
+              <tr>
+                <td><span class="badge banned">404 NOT FOUND</span></td>
+                <td><code style="color:#fb7185">KEY_NOT_FOUND</code></td>
+                <td>Mã key không tồn tại trong hệ thống.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Code Snippets with Tabs -->
+      <div class="docs-section-block">
+        <div class="row" style="margin-bottom: 10px;">
+          <h3 class="docs-subtitle" style="margin: 0;">6. CODE MẪU TÍCH HỢP VÀO PHẦN MỀM (SDK)</h3>
+          <button id="copyCodeBtn" type="button" class="btn-copy-tech">📋 COPY CODE NÀY</button>
+        </div>
+
+        <div class="sdk-tabs">
+          <button type="button" class="sdk-tab-btn active" data-tab="csharp">C# (.NET / Unity)</button>
+          <button type="button" class="sdk-tab-btn" data-tab="cpp">C++ (WinHTTP / ImGui)</button>
+          <button type="button" class="sdk-tab-btn" data-tab="python">Python</button>
+          <button type="button" class="sdk-tab-btn" data-tab="nodejs">JavaScript / Node.js</button>
+          <button type="button" class="sdk-tab-btn" data-tab="curl">cURL / Terminal</button>
+        </div>
+
+        <!-- C# Snippet -->
+        <div id="tab-csharp" class="sdk-code-box">
+          <pre><code>using System;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Win32;
+
+public class LicenseValidator
+{
+    private static readonly HttpClient client = new HttpClient();
+    private const string API_URL = "http://localhost:3000/api/v1/check-key";
+
+    // 1. TỰ ĐỘNG LẤY MÃ MÁY PHẦN CỨNG BẤT BIẾN (KHÔNG ĐỔI KHI CÀI LẠI WIN/ĐỔI MẠNG)
+    public static string GetHardwareHWID()
+    {
+        string uuid = "", cpu = "", board = "";
+        try
+        {
+            using (var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\BIOS"))
+                board = key?.GetValue("BaseBoardSerialNumber")?.ToString() ?? "";
+            using (var key = Registry.LocalMachine.OpenSubKey(@"HARDWARE\DESCRIPTION\System\CentralProcessor\0"))
+                cpu = key?.GetValue("ProcessorNameString")?.ToString() ?? "";
+            using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Cryptography"))
+                uuid = key?.GetValue("MachineGuid")?.ToString() ?? "";
+        }
+        catch { }
+
+        string raw = $"{uuid}#{cpu}#{board}";
+        using (var sha = SHA256.Create())
+        {
+            byte[] hash = sha.ComputeHash(Encoding.UTF8.GetBytes(raw));
+            return "HWID-" + BitConverter.ToString(hash).Replace("-", "").Substring(0, 16);
+        }
+    }
+
+    // 2. XÁC THỰC BẢN QUYỀN VỚI MÁY CHỦ TBAO KEY SERVER (CHỐNG REPLAY)
+    public static async Task&lt;bool&gt; CheckLicense(string licenseKey)
+    {
+        string hwid = GetHardwareHWID();
+        string nonce = Guid.NewGuid().ToString("N");
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        var payload = new { key = licenseKey, hwid = hwid, nonce = nonce, timestamp = timestamp };
+        var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+        try
+        {
+            var response = await client.PostAsync(API_URL, content);
+            string json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            if (response.IsSuccessStatusCode && root.GetProperty("valid").GetBoolean())
+            {
+                // Kiểm tra Anti-Replay: Nonce trả về phải trùng khớp với Nonce vừa gửi đi
+                if (root.TryGetProperty("nonce", out var n) && n.GetString() != nonce)
+                {
+                    Console.WriteLine("❌ CẢNH BÁO: Phát hiện tấn công Replay (Nonce không khớp)!");
+                    return false;
+                }
+
+                Console.WriteLine("✅ Bản quyền hợp lệ!");
+                if (root.TryGetProperty("expires_at", out var exp) && exp.ValueKind != JsonValueKind.Null)
+                    Console.WriteLine("Hạn dùng: " + exp.GetString());
+                else
+                    Console.WriteLine("Bản quyền vĩnh viễn.");
+                return true;
+            }
+            else
+            {
+                string reason = root.TryGetProperty("reason", out var r) ? r.GetString() : "UNKNOWN";
+                Console.WriteLine("❌ Lỗi bản quyền: " + reason);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("⚠️ Lỗi kết nối máy chủ: " + ex.Message);
+            return false;
+        }
+    }
+}</code></pre>
+        </div>
+
+        <!-- C++ Snippet -->
+        <div id="tab-cpp" class="sdk-code-box" hidden>
+          <pre><code>#include &lt;windows.h&gt;
+#include &lt;winhttp.h&gt;
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+#pragma comment(lib, "winhttp.lib")
+
+// Xác thực bản quyền bằng WinHTTP thuần (Không phụ thuộc thư viện ngoài)
+bool CheckLicense(const std::wstring&amp; serverHost, int port, const std::string&amp; key, const std::string&amp; hwid)
+{
+    HINTERNET hSession = WinHttpOpen(L"TBAO-GameClient/2.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, NULL, NULL, 0);
+    if (!hSession) return false;
+
+    HINTERNET hConnect = WinHttpConnect(hSession, serverHost.c_str(), port, 0);
+    if (!hConnect) { WinHttpCloseHandle(hSession); return false; }
+
+    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", L"/api/v1/check-key",
+                                            NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+    if (!hRequest) { WinHttpCloseHandle(hConnect); WinHttpCloseHandle(hSession); return false; }
+
+    std::string jsonPayload = "{\"key\":\"" + key + "\",\"hwid\":\"" + hwid + "\"}";
+    LPCWSTR headers = L"Content-Type: application/json\r\n";
+
+    BOOL bSend = WinHttpSendRequest(hRequest, headers, -1L, (LPVOID)jsonPayload.c_str(), 
+                                    (DWORD)jsonPayload.length(), (DWORD)jsonPayload.length(), 0);
+    if (bSend) bSend = WinHttpReceiveResponse(hRequest, NULL);
+
+    DWORD statusCode = 0;
+    DWORD size = sizeof(statusCode);
+    if (bSend) {
+        WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                            NULL, &amp;statusCode, &amp;size, NULL);
+    }
+
+    WinHttpCloseHandle(hRequest);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+
+    if (statusCode == 200) {
+        std::cout &lt;&lt; "[+] Kich hoat ban quyen thanh cong! (200 OK)\n";
+        return true;
+    } else {
+        std::cout &lt;&lt; "[-] Ban quyen tu choi! Ma loi HTTP: " &lt;&lt; statusCode &lt;&lt; "\n";
+        return false;
+    }
+}
+
+int main() {
+    // Ví dụ kiểm tra bản quyền:
+    CheckLicense(L"localhost", 3000, "TBAO-XXXX-XXXX-XXXX", "HWID-GAME-PC-01");
+    return 0;
+}</code></pre>
+        </div>
+
+        <!-- Python Snippet -->
+        <div id="tab-python" class="sdk-code-box" hidden>
+          <pre><code>import subprocess
+import hashlib
+import requests
+
+API_URL = "http://localhost:3000/api/v1/check-key"
+
+# 1. LẤY MÃ MÁY PHẦN CỨNG BẤT BIẾN (BO MẠCH CHỦ + CPU ID + SERIAL)
+def get_hardware_hwid() -> str:
+    cmd = [
+        "powershell", "-NoProfile", "-Command",
+        "(Get-CimInstance Win32_ComputerSystemProduct).UUID; (Get-CimInstance Win32_Processor).ProcessorId; (Get-CimInstance Win32_BaseBoard).SerialNumber"
+    ]
+    try:
+        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode('utf-8', errors='ignore').strip().splitlines()
+        raw = "#".join(out)
+    except Exception:
+        raw = "FALLBACK-HARDWARE"
+    return "HWID-" + hashlib.sha256(raw.encode()).hexdigest()[:16].upper()
+
+# 2. XÁC THỰC BẢN QUYỀN VỚI SERVER
+def validate_key(key: str) -> bool:
+    hwid = get_hardware_hwid()
+    payload = {"key": key, "hwid": hwid}
+    try:
+        res = requests.post(API_URL, json=payload, timeout=10)
+        data = res.json()
+        
+        if res.status_code == 200 and data.get("valid") is True:
+            print("✅ Bản quyền hợp lệ!")
+            print(f"Hạn dùng: {data.get('expires_at') or 'Vĩnh viễn ∞'}")
+            print(f"Số máy đã kích hoạt: {data.get('bound_devices')}/{data.get('device_limit')}")
+            return True
+        else:
+            print(f"❌ Từ chối: {data.get('reason')} - {data.get('message', '')}")
+            return False
+    except Exception as e:
+        print(f"⚠️ Lỗi kết nối máy chủ: {e}")
+        return False
+
+# Thử nghiệm kiểm tra key
+if __name__ == "__main__":
+    validate_key("TBAO-XXXX-XXXX-XXXX")</code></pre>
+        </div>
+
+        <!-- Node.js Snippet -->
+        <div id="tab-nodejs" class="sdk-code-box" hidden>
+          <pre><code>async function checkLicense(key, hwid) {
+  try {
+    const res = await fetch('http://localhost:3000/api/v1/check-key', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, hwid })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.valid) {
+      console.log('✅ License hợp lệ!', data);
+      return true;
+    } else {
+      console.error('❌ Từ chối:', data.reason, data.message);
+      return false;
+    }
+  } catch (err) {
+    console.error('⚠️ Không thể kết nối tới server bản quyền:', err);
+    return false;
+  }
+}</code></pre>
+        </div>
+
+        <!-- cURL Snippet -->
+        <div id="tab-curl" class="sdk-code-box" hidden>
+          <pre><code>curl -X POST http://localhost:3000/api/v1/check-key \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "TBAO-XXXX-XXXX-XXXX",
+    "hwid": "MY-HARDWARE-ID"
+  }'</code></pre>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CYBER TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- FLOATING CYBER AUDIO HUD WIDGET -->
+  <audio id="bgMusic" src="/em-va-doi-anh.mp3" loop preload="none"></audio>
+  
+  <div class="hud-music-widget" title="Bật/Tắt Nhạc Nền Gaming">
+    <button id="musicBtn" type="button" class="hud-music-btn">
+      <span class="music-icon" id="musicIcon">🎵</span>
+      <div class="equalizer" id="equalizer">
+        <span class="bar bar-1"></span>
+        <span class="bar bar-2"></span>
+        <span class="bar bar-3"></span>
+        <span class="bar bar-4"></span>
+      </div>
+    </button>
+    <div class="music-tooltip">BGM // Em và Đời Anh</div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION (THANH ĐIỀU HƯỚNG ĐÁY CHUYÊN BIỆT CHO MOBILE) -->
+  <nav id="mobileBottomNav" class="mobile-bottom-nav">
+    <button type="button" class="bottom-nav-item active" data-target="statsSection">
+      <span class="nav-icon">📊</span>
+      <span class="nav-text">HUD</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-target="forgeSection">
+      <span class="nav-icon">⚡</span>
+      <span class="nav-text">Cấp Key</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-target="keysSection">
+      <span class="nav-icon">🔑</span>
+      <span class="nav-text">Bản Quyền</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-target="devicesSection">
+      <span class="nav-icon">💻</span>
+      <span class="nav-text">Thiết Bị</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-target="apiDocsSection">
+      <span class="nav-icon">📖</span>
+      <span class="nav-text">API Docs</span>
+    </button>
+  </nav>
+
+  <script src="/app.js"></script>
+</body>
+</html>
