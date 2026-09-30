@@ -47,6 +47,8 @@ def __get_active_server():
         except Exception:
             pass
     return __LICENSE_SERVER__
+
+def __get_machine_id():
     """Trích xuất mã máy phần cứng bất biến (Motherboard UUID + CPU ID + BaseBoard Serial)"""
     uuid, cpu_id, board_serial = "", "", ""
     try:
