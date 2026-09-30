@@ -946,11 +946,11 @@ async function buildProtectedCode() {
 
       showToast(`✓ Đã bảo vệ thành công ${selectedPyFile.name}!`, 'success');
     } else {
-      showToast(res.error || 'Lỗi khi bảo vệ mã nguồn!', 'error');
+      showToast(res.message || res.error || 'Lỗi khi bảo vệ mã nguồn!', 'error');
     }
   } catch (err) {
     console.error('Build protected code error:', err);
-    showToast('Lỗi kết nối máy chủ!', 'error');
+    showToast(err.message || 'Lỗi kết nối máy chủ!', 'error');
   } finally {
     if (buildBtn) {
       buildBtn.disabled = false;
