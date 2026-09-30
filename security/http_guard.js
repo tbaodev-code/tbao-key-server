@@ -81,13 +81,20 @@ function timeoutGuard(timeoutMs = 15000) {
   };
 }
 
-// 4. Bắt lỗi cú pháp JSON từ express.json (Không làm văng crash server)
+// 4. Bắt lỗi cú pháp JSON & Payload Quá Dung Lượng từ express.json
 function jsonErrorHandler(err, req, res, next) {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     return res.status(400).json({
       ok: false,
       error: 'MALFORMED_JSON',
       message: 'Dữ liệu gửi lên không đúng định dạng JSON hợp lệ'
+    });
+  }
+  if (err.type === 'entity.too.large' || err.status === 413) {
+    return res.status(413).json({
+      ok: false,
+      error: 'PAYLOAD_TOO_LARGE',
+      message: 'Dung lượng file Python hoặc dữ liệu gửi lên vượt quá giới hạn cho phép (Tối đa 10MB)!'
     });
   }
   next(err);
