@@ -853,14 +853,42 @@ function formatBytes(bytes, decimals = 1) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
+let protectInputMode = 'upload'; // 'upload' or 'paste'
+
+function switchProtectInputMode(mode) {
+  protectInputMode = mode;
+  const tabUpload = $('tabUploadFileBtn');
+  const tabPaste = $('tabPasteCodeBtn');
+  const uploadContainer = $('pyUploadContainer');
+  const pasteContainer = $('pyPasteContainer');
+  const buildBtn = $('buildProtectedBtn');
+
+  if (mode === 'upload') {
+    if (tabUpload) tabUpload.classList.add('active');
+    if (tabPaste) tabPaste.classList.remove('active');
+    if (uploadContainer) uploadContainer.hidden = false;
+    if (pasteContainer) pasteContainer.hidden = true;
+    if (buildBtn) buildBtn.disabled = !selectedPyFile || !originalPyCode;
+  } else {
+    if (tabPaste) tabPaste.classList.add('active');
+    if (tabUpload) tabUpload.classList.remove('active');
+    if (uploadContainer) uploadContainer.hidden = true;
+    if (pasteContainer) pasteContainer.hidden = false;
+    const directCode = $('pyDirectCodeInput');
+    if (buildBtn) buildBtn.disabled = !(directCode && directCode.value.trim().length > 0);
+  }
+}
+
 function handlePyFileSelect(file) {
   if (!file) return;
-  if (!file.name.endsWith('.py')) {
-    showToast('Vui lòng chỉ tải lên tệp tin Python có đuôi .py!', 'error');
-    return;
+
+  const fileNameLower = (file.name || '').toLowerCase();
+  if (file.name && !fileNameLower.endsWith('.py') && !fileNameLower.endsWith('.txt')) {
+    showToast('Tệp đã chọn không có đuôi .py, hệ thống sẽ tự động gán .py khi bảo vệ!', 'warning');
   }
 
   selectedPyFile = file;
+  const displayName = file.name || 'script.py';
   const fileNameEl = $('pyFileName');
   const fileSizeEl = $('pyFileSize');
   const fileInfoBox = $('pyFileInfoBox');
@@ -868,20 +896,20 @@ function handlePyFileSelect(file) {
   const buildBtn = $('buildProtectedBtn');
   const resultBox = $('buildResultBox');
 
-  if (fileNameEl) fileNameEl.textContent = file.name;
-  if (fileSizeEl) fileSizeEl.textContent = formatBytes(file.size);
+  if (fileNameEl) fileNameEl.textContent = displayName;
+  if (fileSizeEl) fileSizeEl.textContent = formatBytes(file.size || 0);
   if (fileInfoBox) fileInfoBox.hidden = false;
   if (dropzone) dropzone.style.display = 'none';
-  if (buildBtn) buildBtn.disabled = false;
+  if (buildBtn && protectInputMode === 'upload') buildBtn.disabled = false;
   if (resultBox) resultBox.hidden = true;
 
   const reader = new FileReader();
   reader.onload = (e) => {
     originalPyCode = e.target.result;
-    showToast(`Đã nạp ${file.name} (${formatBytes(file.size)})`, 'info');
+    showToast(`Đã nạp ${displayName} (${formatBytes(file.size || 0)})`, 'info');
   };
   reader.onerror = () => {
-    showToast('Lỗi khi đọc file Python!', 'error');
+    showToast('Lỗi khi đọc file trên thiết bị!', 'error');
   };
   reader.readAsText(file, 'utf-8');
 }
@@ -902,14 +930,32 @@ function removePyFile() {
 
   if (fileInfoBox) fileInfoBox.hidden = true;
   if (dropzone) dropzone.style.display = '';
-  if (buildBtn) buildBtn.disabled = true;
+  if (buildBtn && protectInputMode === 'upload') buildBtn.disabled = true;
   if (resultBox) resultBox.hidden = true;
 }
 
 async function buildProtectedCode() {
-  if (!selectedPyFile || !originalPyCode) {
-    showToast('Vui lòng chọn file Python trước!', 'error');
-    return;
+  let codeToProtect = '';
+  let targetFileName = 'protected_script.py';
+
+  if (protectInputMode === 'paste') {
+    const directCodeEl = $('pyDirectCodeInput');
+    codeToProtect = directCodeEl ? directCodeEl.value.trim() : '';
+    if (!codeToProtect) {
+      showToast('Vui lòng nhập hoặc dán mã Python vào ô văn bản!', 'error');
+      return;
+    }
+    const customNameEl = $('pyCustomOutputName');
+    const baseName = (customNameEl ? customNameEl.value.trim() : 'tool.py') || 'tool.py';
+    targetFileName = baseName.replace(/\.py$/i, '') + '_protected.py';
+  } else {
+    if (!selectedPyFile || !originalPyCode) {
+      showToast('Vui lòng chọn hoặc tải lên file Python trước khi build!', 'error');
+      return;
+    }
+    codeToProtect = originalPyCode;
+    const baseName = selectedPyFile.name || 'script.py';
+    targetFileName = baseName.replace(/\.py$/i, '') + '_protected.py';
   }
 
   const buildBtn = $('buildProtectedBtn');
@@ -925,14 +971,14 @@ async function buildProtectedCode() {
     const res = await api('/api/v1/protect-code', {
       method: 'POST',
       body: JSON.stringify({
-        code: originalPyCode,
+        code: codeToProtect,
         server_url: origin
       })
     });
 
     if (res.ok && res.protected_code) {
       protectedPyCode = res.protected_code;
-      protectedFileName = selectedPyFile.name.replace(/\.py$/i, '') + '_protected.py';
+      protectedFileName = targetFileName;
 
       const downloadFileName = $('downloadFileName');
       if (downloadFileName) downloadFileName.textContent = protectedFileName;
@@ -946,7 +992,7 @@ async function buildProtectedCode() {
         resultBox.scrollIntoView({ behavior: 'smooth' });
       }
 
-      showToast(`✓ Đã bảo vệ thành công ${selectedPyFile.name}!`, 'success');
+      showToast(`✓ Đã bảo vệ thành công mã nguồn!`, 'success');
     } else {
       showToast(res.message || res.error || 'Lỗi khi bảo vệ mã nguồn!', 'error');
     }
@@ -1103,25 +1149,51 @@ document.addEventListener('DOMContentLoaded', () => {
     customServerUrlInput.value = window.location.origin;
   }
 
+  const tabUploadFileBtn = $('tabUploadFileBtn');
+  const tabPasteCodeBtn = $('tabPasteCodeBtn');
+  const pasteClipboardBtn = $('pasteClipboardBtn');
+  const pyDirectCodeInput = $('pyDirectCodeInput');
   const pyDropzone = $('pyDropzone');
   const pyFileInput = $('pyFileInput');
-  const browsePyFileBtn = $('browsePyFileBtn');
   const removePyFileBtn = $('removePyFileBtn');
   const buildProtectedBtn = $('buildProtectedBtn');
   const downloadProtectedBtn = $('downloadProtectedBtn');
+  const quickCopyProtectedBtn = $('quickCopyProtectedBtn');
   const togglePreviewBtn = $('togglePreviewBtn');
   const copyProtectedCodeBtn = $('copyProtectedCodeBtn');
 
-  if (browsePyFileBtn && pyFileInput) {
-    browsePyFileBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      pyFileInput.click();
+  if (tabUploadFileBtn) tabUploadFileBtn.addEventListener('click', () => switchProtectInputMode('upload'));
+  if (tabPasteCodeBtn) tabPasteCodeBtn.addEventListener('click', () => switchProtectInputMode('paste'));
+
+  if (pyDirectCodeInput) {
+    pyDirectCodeInput.addEventListener('input', () => {
+      if (protectInputMode === 'paste') {
+        if (buildProtectedBtn) buildProtectedBtn.disabled = !pyDirectCodeInput.value.trim();
+      }
     });
   }
 
-  if (pyDropzone && pyFileInput) {
-    pyDropzone.addEventListener('click', () => pyFileInput.click());
+  if (pasteClipboardBtn && pyDirectCodeInput) {
+    pasteClipboardBtn.addEventListener('click', async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            pyDirectCodeInput.value = text;
+            if (buildProtectedBtn) buildProtectedBtn.disabled = false;
+            showToast('Đã dán mã từ Clipboard!', 'success');
+            return;
+          }
+        }
+      } catch (err) {
+        // Trình duyệt mobile có thể chặn clipboard tự động nếu chưa cấp quyền
+      }
+      pyDirectCodeInput.focus();
+      showToast('Hãy chạm giữ và chọn "Dán" vào ô văn bản!', 'info');
+    });
+  }
 
+  if (pyDropzone) {
     pyDropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       pyDropzone.classList.add('dragover');
@@ -1155,6 +1227,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (copyProtectedCodeBtn) {
     copyProtectedCodeBtn.addEventListener('click', () => {
       if (protectedPyCode) copyToClipboard(protectedPyCode);
+    });
+  }
+  if (quickCopyProtectedBtn) {
+    quickCopyProtectedBtn.addEventListener('click', () => {
+      if (protectedPyCode) {
+        copyToClipboard(protectedPyCode);
+        showToast('✓ Đã copy code bảo vệ! Sẵn sàng dán vào Termux.', 'success');
+      } else {
+        showToast('Chưa có code đã bảo vệ!', 'error');
+      }
     });
   }
 
