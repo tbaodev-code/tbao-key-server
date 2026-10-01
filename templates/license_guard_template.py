@@ -10,6 +10,7 @@ import json
 import subprocess
 import hashlib
 import time
+import shutil
 import urllib.request
 import urllib.error
 
@@ -36,6 +37,26 @@ __LICENSE_SERVER__ = "{{SERVER_URL}}"
 __LICENSE_CACHE_FILE__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "license.key")
 __SERVER_CACHE_FILE__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".server_endpoint.cache")
 
+def __clear_screen():
+    """Xóa màn hình terminal (hỗ trợ Windows, Linux, macOS, Termux)"""
+    try:
+        if os.name == "nt":
+            os.system("cls")
+        else:
+            os.system("clear")
+        sys.stdout.write("\033[H\033[2J\033[3J")
+        sys.stdout.flush()
+    except Exception:
+        pass
+
+def __get_term_width():
+    """Đo độ rộng màn hình console (tự động nhận diện Termux/Điện thoại)"""
+    try:
+        w = shutil.get_terminal_size(fallback=(80, 24)).columns
+        return w if w > 20 else 80
+    except Exception:
+        return 80
+
 def __get_active_server():
     """Lấy link server đang hoạt động (ưu tiên link mới nếu server thông báo đổi domain)"""
     if os.path.exists(__SERVER_CACHE_FILE__):
@@ -49,53 +70,134 @@ def __get_active_server():
     return __LICENSE_SERVER__
 
 def __get_machine_id():
-    """Trích xuất mã máy phần cứng bất biến (Motherboard UUID + CPU ID + BaseBoard Serial)"""
+    """Trích xuất mã máy phần cứng bất biến (Hỗ trợ Windows, Linux, macOS và Termux Android)"""
     uuid, cpu_id, board_serial = "", "", ""
-    try:
-        cmd = [
-            "powershell", "-NoProfile", "-Command",
-            "(Get-CimInstance Win32_ComputerSystemProduct).UUID; (Get-CimInstance Win32_Processor).ProcessorId; (Get-CimInstance Win32_BaseBoard).SerialNumber"
-        ]
-        out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore").strip().splitlines()
-        if len(out) >= 1 and out[0].strip():
-            uuid = out[0].strip()
-        if len(out) >= 2 and out[1].strip():
-            cpu_id = out[1].strip()
-        if len(out) >= 3 and out[2].strip():
-            board_serial = out[2].strip()
-    except Exception:
-        pass
 
-    if not uuid:
+    # 1. Nếu là Windows
+    if sys.platform.startswith("win"):
         try:
-            cmd = 'reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography" /v MachineGuid'
-            out = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore")
-            for line in out.splitlines():
-                if "MachineGuid" in line:
-                    uuid = line.split()[-1].strip()
+            cmd = [
+                "powershell", "-NoProfile", "-Command",
+                "(Get-CimInstance Win32_ComputerSystemProduct).UUID; (Get-CimInstance Win32_Processor).ProcessorId; (Get-CimInstance Win32_BaseBoard).SerialNumber"
+            ]
+            out = subprocess.check_output(cmd, stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore").strip().splitlines()
+            if len(out) >= 1 and out[0].strip():
+                uuid = out[0].strip()
+            if len(out) >= 2 and out[1].strip():
+                cpu_id = out[1].strip()
+            if len(out) >= 3 and out[2].strip():
+                board_serial = out[2].strip()
         except Exception:
-            uuid = os.environ.get("COMPUTERNAME", "STANDALONE-RIG")
+            pass
+
+        if not uuid:
+            try:
+                cmd = 'reg query "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography" /v MachineGuid'
+                out = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore")
+                for line in out.splitlines():
+                    if "MachineGuid" in line:
+                        uuid = line.split()[-1].strip()
+            except Exception:
+                uuid = os.environ.get("COMPUTERNAME", "STANDALONE-RIG")
+
+    # 2. Nếu là Termux / Android / Linux / macOS
+    else:
+        hwid_file = os.path.expanduser("~/.tbao_hwid")
+        if os.path.exists(hwid_file):
+            try:
+                with open(hwid_file, "r", encoding="utf-8") as f:
+                    saved_hwid = f.read().strip()
+                    if saved_hwid.startswith("HWID-") and len(saved_hwid) >= 10:
+                        return saved_hwid
+            except Exception:
+                pass
+
+        android_props = []
+        for prop in ["ro.serialno", "ro.boot.serialno", "ro.build.id", "ro.product.model", "ro.product.brand"]:
+            try:
+                val = subprocess.check_output(["getprop", prop], stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore").strip()
+                if val and val != "unknown":
+                    android_props.append(f"{prop}={val}")
+            except Exception:
+                pass
+
+        for mid_path in ["/etc/machine-id", "/var/lib/dbus/machine-id", "/proc/sys/kernel/random/boot_id"]:
+            if os.path.exists(mid_path):
+                try:
+                    with open(mid_path, "r", encoding="utf-8") as f:
+                        mid = f.read().strip()
+                        if mid:
+                            uuid = mid
+                            break
+                except Exception:
+                    pass
+
+        if os.path.exists("/proc/cpuinfo"):
+            try:
+                with open("/proc/cpuinfo", "r", encoding="utf-8") as f:
+                    for line in f:
+                        if "Serial" in line or "Hardware" in line:
+                            cpu_id += line.strip()
+            except Exception:
+                pass
+
+        board_serial = "#".join(android_props)
+        if not uuid and not android_props and not cpu_id:
+            uuid = os.uname().nodename if hasattr(os, "uname") else "TERMUX-NODE"
 
     raw = f"{uuid}#{cpu_id}#{board_serial}"
     short_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16].upper()
-    return f"HWID-{short_hash}"
+    hwid = f"HWID-{short_hash}"
+
+    if not sys.platform.startswith("win"):
+        try:
+            hwid_file = os.path.expanduser("~/.tbao_hwid")
+            with open(hwid_file, "w", encoding="utf-8") as f:
+                f.write(hwid)
+        except Exception:
+            pass
+
+    return hwid
 
 def __render_banner(machine_id, status_text=None, is_valid=False):
-    """Hiển thị Banner Cyberpunk TBAO TEAM Developer Tool"""
-    os.system("cls" if os.name == "nt" else "clear")
-    banner = f"""
-{CYAN}{BOLD}  ████████╗██████╗  █████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███╗
+    """Hiển thị Banner Cyberpunk tự động thích ứng với Terminal (Desktop & Termux Android)"""
+    __clear_screen()
+    width = __get_term_width()
+    status = status_text or "Waiting for license key..."
+    status_color = GREEN if is_valid else YELLOW
+    server_url = __get_active_server()
+
+    if width >= 70:
+        # Layout Desktop / Rộng
+        div = "═" * min(width - 2, 79)
+        banner = f"""{CYAN}{BOLD}  ████████╗██████╗  █████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███╗
   ╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║
      ██║   ██████╔╝███████║██║   ██║       ██║   █████╗  ███████║██╔████╔██║
      ██║   ██╔══██╗██╔══██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║
      ██║   ██████╔╝██║  ██║╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║
      ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝{RESET}
                 {DIM}— CYBERNETIC LICENSE PROTECTION SYSTEM V2.0 —{RESET}
-{CYAN}═══════════════════════════════════════════════════════════════════════════════{RESET}
+{CYAN}{div}{RESET}
   {BOLD}Machine ID :{RESET} {YELLOW}{machine_id}{RESET}
-  {BOLD}Server     :{RESET} {DIM}{__LICENSE_SERVER__}{RESET}
-  {BOLD}Status     :{RESET} {GREEN if is_valid else YELLOW}{status_text or 'Waiting for license...'}{RESET}
-{CYAN}═══════════════════════════════════════════════════════════════════════════════{RESET}
+  {BOLD}Server     :{RESET} {DIM}{server_url}{RESET}
+  {BOLD}Status     :{RESET} {status_color}{status}{RESET}
+{CYAN}{div}{RESET}
+"""
+    else:
+        # Layout Termux / Mobile / Màn hình nhỏ (Tối ưu cho 36 - 60 cột, không vỡ chữ)
+        div = "═" * max(34, min(width - 2, 42))
+        banner = f"""{CYAN}{BOLD}   ████████╗██████╗  █████╗  ██████╗
+   ╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗
+      ██║   ██████╔╝███████║██║   ██║
+      ██║   ██╔══██╗██╔══██║██║   ██║
+      ██║   ██████╔╝██║  ██║╚██████╔╝
+      ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝{RESET}
+          {DIM}★ TBAO TEAM LICENSE ★{RESET}
+{CYAN}{div}{RESET}
+  {BOLD}Mã máy:{RESET} {YELLOW}{machine_id}{RESET}
+  {BOLD}Server:{RESET} {DIM}{server_url}{RESET}
+  {BOLD}Status:{RESET} {status_color}{status}{RESET}
+{CYAN}{div}{RESET}
 """
     print(banner)
 
@@ -165,7 +267,7 @@ def __enforce_license():
             print(f"  {GREEN}[✓] Kích hoạt bản quyền thành công! ({exp_str}){RESET}")
             print(f"  {DIM}[*] Đang khởi chạy ứng dụng...{RESET}\n")
             time.sleep(1.0)
-            os.system("cls" if os.name == "nt" else "clear")
+            __clear_screen()
             return
 
     # 2. Nếu chưa kích hoạt hoặc key cũ hết hạn -> Hỏi người dùng nhập key
@@ -198,7 +300,7 @@ def __enforce_license():
             print(f"  {GREEN}[✓] Kích hoạt bản quyền thành công! ({exp_str}){RESET}")
             print(f"  {DIM}[*] Đang khởi chạy ứng dụng...{RESET}\n")
             time.sleep(1.2)
-            os.system("cls" if os.name == "nt" else "clear")
+            __clear_screen()
             return
         else:
             reason = info.get("reason", "UNKNOWN_ERROR")
