@@ -259,7 +259,7 @@ h1.brand-title, h1 {
   letter-spacing: 0.5px;
 }
 
-.header-right {
+.header-right, .header-hud {
   display: flex;
   align-items: center;
   gap: 12px;
