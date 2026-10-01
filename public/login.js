@@ -151,4 +151,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const musicBtn = $('musicBtn');
   if (musicBtn) musicBtn.addEventListener('click', toggleMusic);
+
+  checkStatus();
+  setInterval(checkStatus, 15000);
 });
+
+async function checkStatus() {
+  try {
+    const res = await fetch('/status');
+    const x = await res.json();
+    const el = $('status');
+    if (el) {
+      if (x.ok) {
+        el.innerHTML = `<span class="status-pulse"></span><span class="status-text">ONLINE // ${(x.database || 'TURSO_CLOUD').toUpperCase()}</span>`;
+      } else {
+        el.innerHTML = `<span class="status-pulse" style="background:#fb7185"></span><span class="status-text" style="color:#fb7185">OFFLINE</span>`;
+      }
+    }
+  } catch {}
+}
+
