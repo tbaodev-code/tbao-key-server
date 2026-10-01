@@ -213,30 +213,59 @@
           Tải lên file Python (<code class="code-pill">.py</code>) của bạn. Hệ thống sẽ tự động chèn khối kiểm tra bản quyền vào đầu file mà <b>giữ nguyên 100% logic mã nguồn gốc</b>. Khi người dùng chạy file, tool sẽ tự động hiện Banner TBAO TEAM, lấy Mã máy (Machine ID), yêu cầu nhập Key và xác thực với Server.
         </p>
 
-        <!-- Dropzone Container -->
-        <div id="pyDropzone" class="py-dropzone">
-          <input type="file" id="pyFileInput" accept=".py" style="display: none;">
-          <div class="dropzone-content">
-            <div class="dropzone-icon">🛡️</div>
-            <p class="dropzone-title">KÉO THẢ FILE .PY VÀO ĐÂY</p>
-            <p class="dropzone-sub">hoặc nhấn để duyệt file từ máy tính</p>
-            <button type="button" id="browsePyFileBtn" class="btn btn-secondary btn-sm" style="margin-top: 10px;">
-              📁 Chọn File Python (.py)
-            </button>
+        <!-- Lựa chọn phương thức nạp code: Tải Tệp hoặc Dán Trực Tiếp (Tối ưu Mobile) -->
+        <div class="py-input-tabs" style="display: flex; gap: 8px; margin-bottom: 14px;">
+          <button type="button" id="tabUploadFileBtn" class="btn btn-secondary btn-sm active" style="flex: 1; padding: 8px 12px; font-weight: 700;">
+            📁 TẢI TỆP .PY
+          </button>
+          <button type="button" id="tabPasteCodeBtn" class="btn btn-secondary btn-sm" style="flex: 1; padding: 8px 12px; font-weight: 700;">
+            📝 DÁN MÃ PYTHON (TERMUX / MOBILE)
+          </button>
+        </div>
+
+        <!-- 1. Vùng Tải Tệp (Native Label Hỗ Trợ 100% Android & iOS) -->
+        <div id="pyUploadContainer">
+          <label for="pyFileInput" id="pyDropzone" class="py-dropzone" style="position: relative; display: block; cursor: pointer;">
+            <input type="file" id="pyFileInput" accept=".py,text/x-python,text/plain,application/octet-stream,*/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;">
+            <div class="dropzone-content">
+              <div class="dropzone-icon">🛡️</div>
+              <p class="dropzone-title">KÉO THẢ HOẶC CHẠM ĐỂ CHỌN FILE .PY</p>
+              <p class="dropzone-sub">Hỗ trợ file Python (.py, .txt) từ Máy tính & Điện thoại</p>
+              <span class="btn btn-secondary btn-sm" style="margin-top: 10px; display: inline-block; pointer-events: none;">
+                📁 Chọn Tệp Python
+              </span>
+            </div>
+          </label>
+
+          <!-- File Info Box (Hiển thị khi đã chọn file) -->
+          <div id="pyFileInfoBox" class="py-file-info-box" hidden>
+            <div class="py-file-info-left">
+              <span class="py-file-badge">🐍 PYTHON</span>
+              <div>
+                <div class="py-file-name" id="pyFileName">example.py</div>
+                <small class="py-file-size" id="pyFileSize">0.0 KB</small>
+              </div>
+            </div>
+            <div class="py-file-info-right">
+              <button type="button" id="removePyFileBtn" class="btn-action-mini danger" title="Hủy chọn">✕ Hủy</button>
+            </div>
           </div>
         </div>
 
-        <!-- File Info Box (Hiển thị khi đã chọn file) -->
-        <div id="pyFileInfoBox" class="py-file-info-box" hidden>
-          <div class="py-file-info-left">
-            <span class="py-file-badge">🐍 PYTHON</span>
-            <div>
-              <div class="py-file-name" id="pyFileName">example.py</div>
-              <small class="py-file-size" id="pyFileSize">0.0 KB</small>
-            </div>
+        <!-- 2. Vùng Dán Trực Tiếp Code (Cực tiện cho Mobile & Termux) -->
+        <div id="pyPasteContainer" hidden style="margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label for="pyDirectCodeInput" style="font-size: 12px; font-weight: 700; color: #a5f3fc;">
+              📝 DÁN MÃ NGUỒN PYTHON CỦA BẠN VÀO ĐÂY:
+            </label>
+            <button type="button" id="pasteClipboardBtn" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 4px 10px;">
+              📋 Dán từ Clipboard
+            </button>
           </div>
-          <div class="py-file-info-right">
-            <button type="button" id="removePyFileBtn" class="btn-action-mini danger" title="Hủy chọn">✕ Hủy</button>
+          <textarea id="pyDirectCodeInput" class="input-cyber" rows="9" placeholder="# Dán code Python của bạn vào đây...&#10;print('Xin chào Termux & Mobile!')" style="font-family: monospace; font-size: 13px; resize: vertical; width: 100%; line-height: 1.5;"></textarea>
+          <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 12px; color: var(--text-muted);">Tên file khi tải về:</span>
+            <input type="text" id="pyCustomOutputName" class="input-cyber" value="tool.py" style="font-size: 12px; padding: 6px 10px; max-width: 180px; font-family: monospace;">
           </div>
         </div>
 
@@ -268,12 +297,15 @@
             </div>
           </div>
 
-          <div class="build-download-row">
-            <button type="button" id="downloadProtectedBtn" class="btn btn-cyber-primary btn-glow">
-              <span>📥 TẢI FILE ĐÃ BẢO VỆ (<span id="downloadFileName">example_protected.py</span>)</span>
+          <div class="build-download-row" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button type="button" id="downloadProtectedBtn" class="btn btn-cyber-primary btn-glow" style="flex: 1; min-width: 180px;">
+              <span>📥 TẢI FILE (<span id="downloadFileName">example_protected.py</span>)</span>
+            </button>
+            <button type="button" id="quickCopyProtectedBtn" class="btn btn-secondary" style="flex: 1; min-width: 150px;">
+              📋 COPY CODE (CHO TERMUX)
             </button>
             <button type="button" id="togglePreviewBtn" class="btn btn-secondary">
-              👁️ Xem Trước Code
+              👁️ Xem Trước
             </button>
           </div>
 
