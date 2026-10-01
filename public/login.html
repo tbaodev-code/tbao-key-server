@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TBAO TEAM // ĐĂNG NHẬP BẢO MẬT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="cyber-theme">
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- CYBER HEADER -->
+  <header class="cyber-header">
+    <div class="brand-wrap">
+      <div class="brand-logo-frame">
+        <div class="logo-glow-orb"></div>
+        <div class="brand-logo">
+          <span class="logo-icon">⚡</span>
+        </div>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title-row">
+          <h1 class="brand-title">TBAO TEAM</h1>
+          <span class="cyber-tag">PRO GAMING</span>
+        </div>
+        <p class="brand-sub-row">
+          <span class="cyber-sub-highlight">CYBERNETIC LICENSE COMMAND CENTER</span>
+          <span class="cyber-sub-dim">// V2.0</span>
+        </p>
+      </div>
+    </div>
+    
+    <div class="header-laser-line"></div>
+
+    <div class="header-hud">
+      <div class="hud-status">
+        <span class="hud-dot live"></span>
+        <span class="hud-text">PORTAL_LOCKED</span>
+      </div>
+      <div class="header-divider-v"></div>
+      <div class="hud-clock">
+        <span class="clock-label">SYS_TIME</span>
+        <span id="liveClock" class="clock-val">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN LOGIN AREA -->
+  <main class="container" style="max-width: 480px; margin: 40px auto; padding: 0 16px;">
+    <!-- LOGIN CARD (PORTAL TERMINAL) -->
+    <section id="loginCard" class="card cyber-login-card">
+      <div class="corner-bracket tl"></div>
+      <div class="corner-bracket tr"></div>
+      <div class="corner-bracket bl"></div>
+      <div class="corner-bracket br"></div>
+
+      <div class="login-header">
+        <div class="login-icon-box">🔐</div>
+        <h2>AUTHENTICATION PORTAL</h2>
+        <p class="cyber-muted">Nhập thông tin nhận dạng quản trị viên để mở khóa hệ thống</p>
+      </div>
+
+      <div class="login-form">
+        <div class="input-group">
+          <label for="username">USERNAME</label>
+          <div class="input-field-wrap">
+            <span class="field-icon">👤</span>
+            <input id="username" type="text" placeholder="Nhập tên đăng nhập..." autocomplete="username">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="password">SECURITY ACCESS CODE</label>
+          <div class="input-field-wrap">
+            <span class="field-icon">🔑</span>
+            <input id="password" type="password" placeholder="Nhập mật khẩu truy cập..." autocomplete="current-password">
+          </div>
+        </div>
+
+        <button id="loginBtn" type="button" class="btn btn-primary btn-block glow-hover">
+          <span>XÁC THỰC TRUY CẬP</span>
+          <span class="btn-arrow">➔</span>
+        </button>
+
+        <p id="loginMsg" class="login-feedback"></p>
+
+        
+      </div>
+    </section>
+  </main>
+
+  <!-- HUD GAMING MUSIC -->
+  <div class="hud-music-widget" title="Bật/Tắt Nhạc Nền Gaming">
+    <button id="musicBtn" type="button" class="hud-music-btn">
+      <span class="music-icon" id="musicIcon">🎵</span>
+      <div class="equalizer" id="equalizer">
+        <span class="bar bar-1"></span>
+        <span class="bar bar-2"></span>
+        <span class="bar bar-3"></span>
+        <span class="bar bar-4"></span>
+      </div>
+    </button>
+    <div class="music-tooltip">BGM // Em và Đời Anh</div>
+  </div>
+  <audio id="bgMusic" loop preload="none">
+    <source src="/em-va-doi-anh.mp3" type="audio/mpeg">
+  </audio>
+
+  <script src="/login.js"></script>
+</body>
+</html>
