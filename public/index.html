@@ -374,12 +374,30 @@
 
       <!-- HARDWARE RIGS (DEVICES) -->
       <section id="devicesSection" class="card cyber-card">
-        <div class="card-header">
+        <div class="row table-header-row">
           <div class="card-header-left">
             <span class="header-dot green"></span>
             <h2>THIẾT BỊ ĐÃ KẾT NỐI (AUTHORIZED RIGS)</h2>
           </div>
-          <span class="tech-badge">LIVE_HARDWARE_MONITOR</span>
+          <div class="table-actions">
+            <!-- Ô TÌM KIẾM HOÀN CHỈNH CHO THIẾT BỊ -->
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span>
+              <input id="deviceSearchInput" type="text" placeholder="Tìm kiếm HWID, CPU, Hệ điều hành..." autocomplete="off">
+              <button id="clearDeviceSearchBtn" type="button" class="btn-clear-search" title="Xóa tìm kiếm" hidden>✕</button>
+            </div>
+            <button id="refreshDevicesBtn" type="button" class="btn btn-secondary">↻ Làm mới</button>
+          </div>
+        </div>
+
+        <!-- Trạng thái Empty State khi tìm kiếm thiết bị không ra kết quả -->
+        <div id="deviceSearchEmpty" class="cyber-search-empty" hidden>
+          <div class="empty-icon-radar">💻</div>
+          <h3>KHÔNG TÌM THẤY THIẾT BỊ PHÙ HỢP</h3>
+          <p id="emptyDeviceSearchQueryText" class="cyber-muted">Không có thiết bị nào khớp với từ khóa của bạn.</p>
+          <button id="resetDeviceSearchBtn" type="button" class="btn btn-cyber-primary btn-sm">
+            <span>✕ XÓA BỘ LỌC TÌM KIẾM</span>
+          </button>
         </div>
 
         <!-- BẢNG DESKTOP (Hiển thị màn hình >= 768px) -->
