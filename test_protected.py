@@ -70,11 +70,22 @@ def __get_machine_id():
     return f"HWID-{short_hash}"
 
 def __render_banner(machine_id, status_text=None, is_valid=False):
-    """Hiển thị Banner Cyberpunk Rainbow THAI BAO DEV + Admin Info"""
+    """Hiển thị Banner Cyberpunk tự động thích ứng với Terminal (Desktop & Termux Android)"""
     os.system("cls" if os.name == "nt" else "clear")
-    status = status_text or "Waiting for license key..."
-    status_color = GREEN if is_valid else YELLOW
-    banner = f"""\033[38;5;196m
+    try:
+        import shutil
+        width = shutil.get_terminal_size(fallback=(80, 24)).columns
+    except Exception:
+        width = 80
+
+    if is_valid:
+        action_line = f"  \033[1;32m[✓] License: VALID | Machine: VERIFIED ({machine_id})\033[0m"
+    else:
+        action_line = f"  \033[1;33m👉 Gửi Mã máy này cho Admin để nhận License Key:\033[0m \033[1;36m{machine_id}\033[0m"
+
+    if width >= 70:
+        # Layout Desktop / Rộng (Rainbow THAI BAO DEV + Admin Info)
+        banner = f"""\033[38;5;196m
 ████████╗██╗  ██╗ █████╗ ██╗    ██████╗  █████╗  ██████╗     ██████╗ ███████╗██╗   ██╗
 \033[38;5;208m╚══██╔══╝██║  ██║██╔══██╗██║    ██╔══██╗██╔══██╗██╔═══██╗    ██╔══██╗██╔════╝██║   ██║
 \033[38;5;226m   ██║   ███████║███████║██║    ██████╔╝███████║██║   ██║    ██║  ██║█████╗  ██║   ██║
@@ -90,10 +101,30 @@ def __render_banner(machine_id, status_text=None, is_valid=False):
 \033[38;5;21m         Tools Made By VietNam
 \033[38;5;201m==================================================================================================
               ︻ ╦ デ ╤ ━ ╼ TOOLS BY THAI BAO - KEY LOGIN TOOL ╾ ━ ╤ デ ╦ ︻\033[0m
-\033[1;36m  Machine ID : \033[1;33m{machine_id}\033[0m
-\033[1;36m  Server     : \033[2m{__LICENSE_SERVER__}\033[0m
-\033[1;36m  Status     : {status_color}{status}\033[0m
+{action_line}
 \033[38;5;201m==================================================================================================\033[0m
+"""
+    else:
+        # Layout Termux / Mobile / Màn hình nhỏ (Tối ưu cho 36 - 60 cột, không vỡ chữ)
+        div = "═" * max(34, min(width - 2, 45))
+        banner = f"""\033[38;5;196m   
+   ████████╗██████╗  █████╗  ██████╗
+\033[38;5;208m   ╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗
+\033[38;5;226m      ██║   ██████╔╝███████║██║   ██║
+\033[38;5;46m      ██║   ██╔══██╗██╔══██║██║   ██║
+\033[38;5;51m      ██║   ██████╔╝██║  ██║╚██████╔╝
+\033[38;5;21m      ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝\033[0m
+\033[38;5;201m━O━O━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m
+\033[38;5;196m ┊🔥 ZALO ADMIN : 032.7774.256 🔥 💀
+\033[38;5;208m ┊👑 Admin : Thai Bao ~~👑tbao team👑~~
+\033[38;5;226m ┊💀 KEY PRO | VIP Login Available
+\033[38;5;46m ┊👾 Pronouns | Gender : Male
+\033[38;5;51m ┊🔥 System : Thai Bao Pro | Max Speed
+\033[38;5;21m         Tools Made By VietNam
+\033[38;5;201m{div}
+ ︻ ╦ デ ╤ ━ ╼ TOOLS BY THAI BAO ╾ ━ ╤ デ ╦ ︻\033[0m
+{action_line}
+\033[38;5;201m{div}\033[0m
 """
     print(banner)
 
@@ -160,7 +191,6 @@ def __enforce_license():
     # 2. Nếu chưa kích hoạt hoặc key cũ hết hạn -> Hỏi người dùng nhập key
     while True:
         __render_banner(machine_id, "Waiting for license key...")
-        print(f"  {YELLOW}👉 Gửi Mã máy này cho Admin để nhận License Key: {BOLD}{machine_id}{RESET}")
         try:
             user_key = input(f"\n  {CYAN}Enter License Key: > {RESET}").strip()
         except (KeyboardInterrupt, EOFError):
