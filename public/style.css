@@ -1560,7 +1560,22 @@ tbody tr:last-child td {
   color: #ffffff;
 }
 
+.py-input-tabs button {
+  transition: all 0.2s ease;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-gaming);
+}
+
+.py-input-tabs button.active {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: #fbbf24 !important;
+  color: #fbbf24 !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3) !important;
+}
+
 .py-dropzone {
+  position: relative;
+  overflow: hidden;
   border: 2px dashed rgba(245, 158, 11, 0.4);
   border-radius: var(--radius-md);
   background: rgba(14, 17, 26, 0.5);
