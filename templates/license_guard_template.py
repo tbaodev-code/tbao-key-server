@@ -163,9 +163,11 @@ def __render_banner(machine_id, status_text=None, is_valid=False):
     """Hiển thị Banner Cyberpunk tự động thích ứng với Terminal (Desktop & Termux Android)"""
     __clear_screen()
     width = __get_term_width()
-    status = status_text or "Waiting for license key..."
-    status_color = GREEN if is_valid else YELLOW
-    server_url = __get_active_server()
+
+    if is_valid:
+        action_line = f"  \033[1;32m[✓] License: VALID | Machine: VERIFIED ({machine_id})\033[0m"
+    else:
+        action_line = f"  \033[1;33m👉 Gửi Mã máy này cho Admin để nhận License Key:\033[0m \033[1;36m{machine_id}\033[0m"
 
     if width >= 70:
         # Layout Desktop / Rộng (Rainbow THAI BAO DEV + Admin Info)
@@ -185,9 +187,7 @@ def __render_banner(machine_id, status_text=None, is_valid=False):
 \033[38;5;21m         Tools Made By VietNam
 \033[38;5;201m==================================================================================================
               ︻ ╦ デ ╤ ━ ╼ TOOLS BY THAI BAO - KEY LOGIN TOOL ╾ ━ ╤ デ ╦ ︻\033[0m
-\033[1;36m  Machine ID : \033[1;33m{machine_id}\033[0m
-\033[1;36m  Server     : \033[2m{server_url}\033[0m
-\033[1;36m  Status     : {status_color}{status}\033[0m
+{action_line}
 \033[38;5;201m==================================================================================================\033[0m
 """
     else:
@@ -209,9 +209,7 @@ def __render_banner(machine_id, status_text=None, is_valid=False):
 \033[38;5;21m         Tools Made By VietNam
 \033[38;5;201m{div}
  ︻ ╦ デ ╤ ━ ╼ TOOLS BY THAI BAO ╾ ━ ╤ デ ╦ ︻\033[0m
-  \033[1;36mMã máy:\033[0m \033[1;33m{machine_id}\033[0m
-  \033[1;36mServer:\033[0m \033[2m{server_url}\033[0m
-  \033[1;36mStatus:\033[0m {status_color}{status}\033[0m
+{action_line}
 \033[38;5;201m{div}\033[0m
 """
     print(banner)
@@ -288,7 +286,6 @@ def __enforce_license():
     # 2. Nếu chưa kích hoạt hoặc key cũ hết hạn -> Hỏi người dùng nhập key
     while True:
         __render_banner(machine_id, "Waiting for license key...")
-        print(f"  {YELLOW}👉 Gửi Mã máy này cho Admin để nhận License Key: {BOLD}{machine_id}{RESET}")
         try:
             user_key = input(f"\n  {CYAN}Enter License Key: > {RESET}").strip()
         except (KeyboardInterrupt, EOFError):
