@@ -168,36 +168,51 @@ def __render_banner(machine_id, status_text=None, is_valid=False):
     server_url = __get_active_server()
 
     if width >= 70:
-        # Layout Desktop / Rộng
-        div = "═" * min(width - 2, 79)
-        banner = f"""{CYAN}{BOLD}  ████████╗██████╗  █████╗  ██████╗     ████████╗███████╗ █████╗ ███╗   ███╗
-  ╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║
-     ██║   ██████╔╝███████║██║   ██║       ██║   █████╗  ███████║██╔████╔██║
-     ██║   ██╔══██╗██╔══██║██║   ██║       ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║
-     ██║   ██████╔╝██║  ██║╚██████╔╝       ██║   ███████╗██║  ██║██║ ╚═╝ ██║
-     ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝        ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝{RESET}
-                {DIM}— CYBERNETIC LICENSE PROTECTION SYSTEM V2.0 —{RESET}
-{CYAN}{div}{RESET}
-  {BOLD}Machine ID :{RESET} {YELLOW}{machine_id}{RESET}
-  {BOLD}Server     :{RESET} {DIM}{server_url}{RESET}
-  {BOLD}Status     :{RESET} {status_color}{status}{RESET}
-{CYAN}{div}{RESET}
+        # Layout Desktop / Rộng (Rainbow THAI BAO DEV + Admin Info)
+        banner = f"""\033[38;5;196m
+████████╗██╗  ██╗ █████╗ ██╗    ██████╗  █████╗  ██████╗     ██████╗ ███████╗██╗   ██╗
+\033[38;5;208m╚══██╔══╝██║  ██║██╔══██╗██║    ██╔══██╗██╔══██╗██╔═══██╗    ██╔══██╗██╔════╝██║   ██║
+\033[38;5;226m   ██║   ███████║███████║██║    ██████╔╝███████║██║   ██║    ██║  ██║█████╗  ██║   ██║
+\033[38;5;46m   ██║   ██╔══██║██╔══██║██║    ██╔══██╗██╔══██║██║   ██║    ██║  ██║██╔══╝  ╚██╗ ██╔╝
+\033[38;5;51m   ██║   ██║  ██║██║  ██║██║    ██████╔╝██║  ██║╚██████╔╝    ██████╔╝███████╗ ╚████╔╝
+\033[38;5;21m   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝    ╚═════╝ ╚═╝  ╚═╝ ╚═════╝     ╚═════╝ ╚══════╝  ╚═══╝
+\033[38;5;201m ━O━O━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+\033[38;5;196m              ZALO ADMIN : 032.7774.256 🔥 💀
+\033[38;5;208m ┊👑 Admin : Thai Bao ~~👑tbao team👑~~
+\033[38;5;226m ┊💀 KEY PRO | VIP Login Available
+\033[38;5;46m ┊👾 Pronouns | Gender : Male
+\033[38;5;51m ┊🔥 System : Thai Bao Pro | Max Speed
+\033[38;5;21m         Tools Made By VietNam
+\033[38;5;201m==================================================================================================
+              ︻ ╦ デ ╤ ━ ╼ TOOLS BY THAI BAO - KEY LOGIN TOOL ╾ ━ ╤ デ ╦ ︻\033[0m
+\033[1;36m  Machine ID : \033[1;33m{machine_id}\033[0m
+\033[1;36m  Server     : \033[2m{server_url}\033[0m
+\033[1;36m  Status     : {status_color}{status}\033[0m
+\033[38;5;201m==================================================================================================\033[0m
 """
     else:
         # Layout Termux / Mobile / Màn hình nhỏ (Tối ưu cho 36 - 60 cột, không vỡ chữ)
-        div = "═" * max(34, min(width - 2, 42))
-        banner = f"""{CYAN}{BOLD}   ████████╗██████╗  █████╗  ██████╗
-   ╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗
-      ██║   ██████╔╝███████║██║   ██║
-      ██║   ██╔══██╗██╔══██║██║   ██║
-      ██║   ██████╔╝██║  ██║╚██████╔╝
-      ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝{RESET}
-          {DIM}★ TBAO TEAM LICENSE ★{RESET}
-{CYAN}{div}{RESET}
-  {BOLD}Mã máy:{RESET} {YELLOW}{machine_id}{RESET}
-  {BOLD}Server:{RESET} {DIM}{server_url}{RESET}
-  {BOLD}Status:{RESET} {status_color}{status}{RESET}
-{CYAN}{div}{RESET}
+        div = "═" * max(34, min(width - 2, 45))
+        banner = f"""\033[38;5;196m   
+   ████████╗██████╗  █████╗  ██████╗
+\033[38;5;208m   ╚══██╔══╝██╔══██╗██╔══██╗██╔═══██╗
+\033[38;5;226m      ██║   ██████╔╝███████║██║   ██║
+\033[38;5;46m      ██║   ██╔══██╗██╔══██║██║   ██║
+\033[38;5;51m      ██║   ██████╔╝██║  ██║╚██████╔╝
+\033[38;5;21m      ╚═╝   ╚═════╝ ╚═╝  ╚═╝ ╚═════╝\033[0m
+\033[38;5;201m━O━O━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m
+\033[38;5;196m ┊🔥 ZALO ADMIN : 032.7774.256 🔥 💀
+\033[38;5;208m ┊👑 Admin : Thai Bao ~~👑tbao team👑~~
+\033[38;5;226m ┊💀 KEY PRO | VIP Login Available
+\033[38;5;46m ┊👾 Pronouns | Gender : Male
+\033[38;5;51m ┊🔥 System : Thai Bao Pro | Max Speed
+\033[38;5;21m         Tools Made By VietNam
+\033[38;5;201m{div}
+ ︻ ╦ デ ╤ ━ ╼ TOOLS BY THAI BAO ╾ ━ ╤ デ ╦ ︻\033[0m
+  \033[1;36mMã máy:\033[0m \033[1;33m{machine_id}\033[0m
+  \033[1;36mServer:\033[0m \033[2m{server_url}\033[0m
+  \033[1;36mStatus:\033[0m {status_color}{status}\033[0m
+\033[38;5;201m{div}\033[0m
 """
     print(banner)
 
