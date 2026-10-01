@@ -100,11 +100,44 @@ app.use(
   })
 );
 
-// 6. Phục vụ tài nguyên tĩnh Web giao diện
+// 6. Phục vụ tài nguyên tĩnh công khai (CSS, BGM, login script)
+// index: false để không bao giờ tự động gửi file HTML index chưa qua xác thực
 app.use(express.static(path.join(__dirname, 'public'), {
+  index: false,
   etag: true,
   maxAge: '1h'
 }));
+
+// ==================== BẢO VỆ GIAO DIỆN & TÀI LIỆU Ở BACKEND (CHỐNG ĐỌC TRỘM) ====================
+// Người dùng chưa đăng nhập: Phục vụ login.html (Tuyệt đối không có Dashboard / Docs / Script nhạy cảm)
+// Người dùng đã đăng nhập: Phục vụ dashboard.html (Đầy đủ Quản trị Key, Thiết Bị và Tài liệu API)
+app.get('/', (req, res) => {
+  if (req.session && req.session.admin) {
+    return res.sendFile(path.join(__dirname, 'protected', 'dashboard.html'));
+  }
+  return res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Bảo vệ file Script điều khiển Dashboard & Docs ở backend (Trả 401 nếu chưa có session)
+app.get('/protected-assets/dashboard.js', (req, res) => {
+  if (!req.session || !req.session.admin) {
+    return res.status(401).type('text/javascript').send('/* 401 UNAUTHORIZED: Yêu cầu đăng nhập để truy cập tài nguyên */');
+  }
+  res.sendFile(path.join(__dirname, 'protected', 'dashboard.js'));
+});
+
+// Route xem tài liệu API (Bắt buộc phải đăng nhập)
+app.get('/docs', (req, res) => {
+  if (!req.session || !req.session.admin) {
+    return res.redirect('/');
+  }
+  return res.sendFile(path.join(__dirname, 'protected', 'dashboard.html'));
+});
+
+// Chặn truy cập trực tiếp các file html nếu cố tình đoán URL
+app.get(['/index.html', '/dashboard.html', '/login.html'], (req, res) => {
+  res.redirect('/');
+});
 
 // 7. Route Trạng Thái Sức Khỏe Máy Chủ
 app.get('/status', async (req, res) => {
@@ -136,8 +169,13 @@ app.use('/api', globalApiLimiter, apiRouter);
 app.use('/api', (req, res) => res.status(404).json({ ok: false, error: 'ENDPOINT_NOT_FOUND' }));
 app.use('/admin', (req, res) => res.status(404).json({ ok: false, error: 'ENDPOINT_NOT_FOUND' }));
 
-// 10. Web Fallback (SPA)
-app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+// 10. Web Fallback (SPA) - Kiểm tra phiên làm việc trước khi trả giao diện
+app.use((req, res) => {
+  if (req.session && req.session.admin) {
+    return res.sendFile(path.join(__dirname, 'protected', 'dashboard.html'));
+  }
+  return res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
 
 // 11. Global Error Handler
 app.use((err, req, res, next) => {
