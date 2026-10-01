@@ -2,6 +2,7 @@
 const $ = (id) => document.getElementById(id);
 
 let cachedKeys = [];
+let cachedDevices = [];
 let lastCreatedKey = '';
 let activeSdkTab = 'csharp';
 
@@ -138,68 +139,80 @@ async function loadDevices() {
   const x = await api('/admin/devices');
   if (!x.ok) return;
   
-  const statEl = $('statDevices');
-  if (statEl) statEl.textContent = x.data.length;
+  cachedDevices = x.data || [];
 
+  const statEl = $('statDevices');
+  if (statEl) statEl.textContent = cachedDevices.length;
+
+  filterDevices();
+}
+
+function renderDevices(devices) {
   const tbody = $('devicesBody');
   const mContainer = $('devicesCardsMobile');
 
+  if (!devices || devices.length === 0) {
+    if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#64748b;padding:24px;">Chưa có thiết bị nào kết nối</td></tr>`;
+    }
+    if (mContainer) {
+      mContainer.innerHTML = `<div style="text-align:center;color:#64748b;padding:20px;background:var(--bg-surface-2);border-radius:10px;">Chưa có thiết bị nào kết nối</div>`;
+    }
+    return;
+  }
+
   if (tbody) {
-    tbody.innerHTML = x.data.length === 0
-      ? `<tr><td colspan="5" style="text-align:center;color:#64748b;padding:24px;">Chưa có thiết bị nào kết nối</td></tr>`
-      : x.data.map(d => `
-          <tr>
-            <td><span class="key-code-badge">${esc(d.hwid)}</span></td>
-            <td><span style="color:#cbd5e1">${esc(d.cpu_info || 'Standard Hardware')}</span></td>
-            <td><span style="color:#94a3b8">${esc(d.os_info || 'Unknown OS')}</span></td>
-            <td><span style="color:#a78bfa">${fmt(d.last_seen_at)}</span></td>
-            <td>
-              <div class="table-btn-group">
-                <button type="button" class="btn-action-mini" data-forge="${esc(d.hwid)}" title="Cấp key cho máy này">⚡ CẤP KEY</button>
-                <button type="button" class="btn-action-mini" data-copy="${esc(d.hwid)}" title="Copy HWID">📋</button>
-              </div>
-            </td>
-          </tr>
-        `).join('');
+    tbody.innerHTML = devices.map(d => `
+        <tr>
+          <td><span class="key-code-badge">${esc(d.hwid)}</span></td>
+          <td><span style="color:#cbd5e1">${esc(d.cpu_info || 'Standard Hardware')}</span></td>
+          <td><span style="color:#94a3b8">${esc(d.os_info || 'Unknown OS')}</span></td>
+          <td><span style="color:#a78bfa">${fmt(d.last_seen_at)}</span></td>
+          <td>
+            <div class="table-btn-group">
+              <button type="button" class="btn-action-mini" data-forge="${esc(d.hwid)}" title="Cấp key cho máy này">⚡ CẤP KEY</button>
+              <button type="button" class="btn-action-mini" data-copy="${esc(d.hwid)}" title="Copy HWID">📋</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
   }
 
   // Render Mobile Cards cho Thiết Bị
   if (mContainer) {
-    mContainer.innerHTML = x.data.length === 0
-      ? `<div style="text-align:center;color:#64748b;padding:20px;background:var(--bg-surface-2);border-radius:10px;">Chưa có thiết bị nào kết nối</div>`
-      : x.data.map(d => `
-          <div class="cyber-mobile-card">
-            <div class="card-m-header">
-              <div class="card-m-title">
-                <span style="font-size:16px;">💻</span>
-                <span class="key-code-badge" style="font-size:12px;">${esc(d.hwid)}</span>
-              </div>
-              <button type="button" class="btn-mini-copy" data-copy="${esc(d.hwid)}" title="Sao chép HWID">📋</button>
+    mContainer.innerHTML = devices.map(d => `
+        <div class="cyber-mobile-card">
+          <div class="card-m-header">
+            <div class="card-m-title">
+              <span style="font-size:16px;">💻</span>
+              <span class="key-code-badge" style="font-size:12px;">${esc(d.hwid)}</span>
             </div>
-            <div class="card-m-body">
-              <div class="card-m-row">
-                <span class="card-m-label">CPU HARDWARE</span>
-                <span class="card-m-val" style="color:#cbd5e1;">${esc(d.cpu_info || 'Standard Hardware')}</span>
-              </div>
-              <div class="card-m-row">
-                <span class="card-m-label">HỆ ĐIỀU HÀNH</span>
-                <span class="card-m-val" style="color:#94a3b8;">${esc(d.os_info || 'Unknown OS')}</span>
-              </div>
-              <div class="card-m-row">
-                <span class="card-m-label">ONLINE CUỐI</span>
-                <span class="card-m-val" style="color:#a78bfa;">${fmt(d.last_seen_at)}</span>
-              </div>
+            <button type="button" class="btn-mini-copy" data-copy="${esc(d.hwid)}" title="Sao chép HWID">📋</button>
+          </div>
+          <div class="card-m-body">
+            <div class="card-m-row">
+              <span class="card-m-label">CPU HARDWARE</span>
+              <span class="card-m-val" style="color:#cbd5e1;">${esc(d.cpu_info || 'Standard Hardware')}</span>
             </div>
-            <div class="device-m-actions">
-              <button type="button" class="btn btn-cyber-primary btn-m-full" data-forge="${esc(d.hwid)}">
-                <span>⚡ CẤP KEY CHO MÁY NÀY</span>
-              </button>
-              <button type="button" class="btn btn-secondary btn-m-full" data-copy="${esc(d.hwid)}" title="Copy HWID">
-                <span>📋 SAO CHÉP</span>
-              </button>
+            <div class="card-m-row">
+              <span class="card-m-label">HỆ ĐIỀU HÀNH</span>
+              <span class="card-m-val" style="color:#94a3b8;">${esc(d.os_info || 'Unknown OS')}</span>
+            </div>
+            <div class="card-m-row">
+              <span class="card-m-label">ONLINE CUỐI</span>
+              <span class="card-m-val" style="color:#a78bfa;">${fmt(d.last_seen_at)}</span>
             </div>
           </div>
-        `).join('');
+          <div class="device-m-actions">
+            <button type="button" class="btn btn-cyber-primary btn-m-full" data-forge="${esc(d.hwid)}">
+              <span>⚡ CẤP KEY CHO MÁY NÀY</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-m-full" data-copy="${esc(d.hwid)}" title="Copy HWID">
+              <span>📋 SAO CHÉP</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
   }
 }
 
@@ -348,13 +361,13 @@ function renderKeys(keys) {
   }
 }
 
-// BỘ LỌC TÌM KIẾM THỜI GIAN THỰC (REALTIME SEARCH ENGINE)
+// BỘ LỌC TÌM KIẾM THỜI GIAN THỰC CHO BẢN QUYỀN (REALTIME KEYS SEARCH)
 function filterKeys() {
   const searchInput = $('keySearchInput');
   const clearBtn = $('clearSearchBtn');
   const emptyBox = $('keySearchEmpty');
   const emptyText = $('emptySearchQueryText');
-  const tableWrap = document.querySelector('.cyber-table-wrap');
+  const tableWrap = document.querySelector('#keysSection .cyber-table-wrap');
   const mobileContainer = $('keysCardsMobile');
 
   const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
@@ -404,6 +417,63 @@ function clearSearch() {
     searchInput.focus();
   }
   filterKeys();
+}
+
+// BỘ LỌC TÌM KIẾM THỜI GIAN THỰC CHO THIẾT BỊ (REALTIME RIGS SEARCH)
+function filterDevices() {
+  const searchInput = $('deviceSearchInput');
+  const clearBtn = $('clearDeviceSearchBtn');
+  const emptyBox = $('deviceSearchEmpty');
+  const emptyText = $('emptyDeviceSearchQueryText');
+  const tableWrap = document.querySelector('#devicesSection .cyber-table-wrap');
+  const mobileContainer = $('devicesCardsMobile');
+
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+  // Điều khiển nút Clear X
+  if (clearBtn) {
+    clearBtn.hidden = !query;
+  }
+
+  // Nếu rỗng: hiển thị toàn bộ
+  if (!query) {
+    if (emptyBox) emptyBox.hidden = true;
+    if (tableWrap) tableWrap.style.display = '';
+    if (mobileContainer) mobileContainer.style.display = '';
+    renderDevices(cachedDevices);
+    return;
+  }
+
+  // Lọc theo HWID, CPU, Hệ điều hành
+  const filtered = cachedDevices.filter(d => 
+    (d.hwid && d.hwid.toLowerCase().includes(query)) ||
+    (d.cpu_info && d.cpu_info.toLowerCase().includes(query)) ||
+    (d.os_info && d.os_info.toLowerCase().includes(query))
+  );
+
+  if (filtered.length === 0) {
+    // Không tìm thấy kết quả
+    if (emptyBox) emptyBox.hidden = false;
+    if (emptyText) emptyText.textContent = `Không tìm thấy thiết bị nào khớp với từ khóa "${query}".`;
+    if (tableWrap) tableWrap.style.display = 'none';
+    if (mobileContainer) mobileContainer.style.display = 'none';
+    renderDevices([]);
+  } else {
+    // Tìm thấy kết quả
+    if (emptyBox) emptyBox.hidden = true;
+    if (tableWrap) tableWrap.style.display = '';
+    if (mobileContainer) mobileContainer.style.display = '';
+    renderDevices(filtered);
+  }
+}
+
+function clearDeviceSearch() {
+  const searchInput = $('deviceSearchInput');
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.focus();
+  }
+  filterDevices();
 }
 
 async function loadAll() {
@@ -1055,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = $('refreshBtn');
   if (refreshBtn) refreshBtn.addEventListener('click', loadAll);
 
-  // 5. Ô tìm kiếm thời gian thực & nút Xóa tìm kiếm
+  // 5. Ô tìm kiếm thời gian thực & nút Xóa tìm kiếm (Bản quyền)
   const searchInput = $('keySearchInput');
   if (searchInput) searchInput.addEventListener('input', filterKeys);
 
@@ -1064,6 +1134,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const resetSearchBtn = $('resetSearchBtn');
   if (resetSearchBtn) resetSearchBtn.addEventListener('click', clearSearch);
+
+  // 5b. Ô tìm kiếm thời gian thực & nút Xóa tìm kiếm & Làm mới (Thiết bị)
+  const deviceSearchInput = $('deviceSearchInput');
+  if (deviceSearchInput) deviceSearchInput.addEventListener('input', filterDevices);
+
+  const clearDeviceSearchBtn = $('clearDeviceSearchBtn');
+  if (clearDeviceSearchBtn) clearDeviceSearchBtn.addEventListener('click', clearDeviceSearch);
+
+  const resetDeviceSearchBtn = $('resetDeviceSearchBtn');
+  if (resetDeviceSearchBtn) resetDeviceSearchBtn.addEventListener('click', clearDeviceSearch);
+
+  const refreshDevicesBtn = $('refreshDevicesBtn');
+  if (refreshDevicesBtn) refreshDevicesBtn.addEventListener('click', loadDevices);
 
   // 6. Nút tạo key
   const createKeyBtn = $('createKeyBtn');
